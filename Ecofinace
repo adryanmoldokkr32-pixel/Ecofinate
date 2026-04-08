@@ -1,0 +1,1281 @@
+import { useState, useMemo } from “react”;
+
+/* ========================================
+HELPERS - declared first
+======================================== */
+
+function mg() {
+var r = {};
+for (var i = 0; i < arguments.length; i++) {
+var o = arguments[i];
+if (o) { for (var k in o) { if (o.hasOwnProperty(k)) r[k] = o[k]; } }
+}
+return r;
+}
+
+function mkSvg(children, s) {
+var size = s || 18;
+return (
+<svg viewBox=“0 0 24 24” fill=“none” stroke=“currentColor” strokeWidth=“2” strokeLinecap=“round” strokeLinejoin=“round” style={{ width: size, height: size }}>
+{children}
+</svg>
+);
+}
+
+/* ========================================
+ICONS - all declared before use
+======================================== */
+
+function IcoUp() { return mkSvg(<g><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></g>); }
+function IcoDown() { return mkSvg(<g><polyline points="23 18 13.5 8.5 8.5 13.5 1 6" /><polyline points="17 18 23 18 23 12" /></g>); }
+function IcoFile() { return mkSvg(<g><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></g>); }
+function IcoCard() { return mkSvg(<g><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></g>); }
+function IcoDollar() { return mkSvg(<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />); }
+function IcoMoon() { return mkSvg(<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />); }
+function IcoCal() { return mkSvg(<g><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></g>); }
+function IcoFolder() { return mkSvg(<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />); }
+function IcoDl() { return mkSvg(<g><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></g>); }
+function IcoBolt() { return mkSvg(<polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />); }
+function IcoCheck() { return mkSvg(<polyline points="20 6 9 17 4 12" />, 14); }
+function IcoAlert() { return mkSvg(<g><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></g>, 14); }
+function IcoClock() { return mkSvg(<g><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></g>, 14); }
+function IcoSearch() { return mkSvg(<g><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></g>); }
+function IcoMenu() { return mkSvg(<g><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></g>, 22); }
+function IcoX() { return mkSvg(<g><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></g>, 22); }
+function IcoPlus() { return mkSvg(<g><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></g>); }
+function IcoEdit() { return mkSvg(<g><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></g>, 14); }
+function IcoTrash() { return mkSvg(<g><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></g>, 14); }
+function IcoBack() { return mkSvg(<g><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></g>); }
+function IcoMonitor() { return mkSvg(<g><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></g>); }
+function IcoTarget() { return mkSvg(<g><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></g>); }
+function IcoPie() { return mkSvg(<g><path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" /></g>); }
+function IcoChat() { return mkSvg(<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />); }
+function IcoCash() { return mkSvg(<g><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="3" /></g>, 16); }
+function IcoCc() { return mkSvg(<g><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></g>, 16); }
+function IcoFilter() { return mkSvg(<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />, 16); }
+
+/* ========================================
+SUB-COMPONENTS - declared before App
+======================================== */
+
+function Badge(props) {
+var SM = { platit: { l: “Plătit”, c: “#00E676” }, neplatit: { l: “Neplătit”, c: “#FF1744” }, partial: { l: “Parțial”, c: “#FF9100” }, programat: { l: “Programat”, c: “#448AFF” }, confirmat: { l: “Confirmat”, c: “#00E676” }, in_asteptare: { l: “În așteptare”, c: “#FFD600” } };
+var x = SM[props.s] || SM.neplatit;
+return <span style={{ color: x.c, background: x.c + “18”, border: “1px solid “ + x.c + “35”, padding: “2px 10px”, borderRadius: 20, fontSize: 11, fontWeight: 600, whiteSpace: “nowrap” }}>{x.l}</span>;
+}
+
+function MBadge(props) {
+if (!props.m) return null;
+var isC = props.m === “card”;
+return <span style={{ display: “inline-flex”, alignItems: “center”, gap: 3, padding: “2px 8px”, borderRadius: 6, fontSize: 10, fontWeight: 600, background: isC ? “rgba(68,138,255,0.1)” : “rgba(0,230,118,0.1)”, color: isC ? “#448AFF” : “#00E676” }}>{isC ? <IcoCc /> : <IcoCash />}{isC ? “Card” : “Cash”}</span>;
+}
+
+function MiniBar(props) {
+var data = props.data;
+var h = 100;
+var mx = 1;
+for (var i = 0; i < data.length; i++) { if (data[i].v > mx) mx = data[i].v; if (data[i].c > mx) mx = data[i].c; }
+var bars = [];
+for (var j = 0; j < data.length; j++) {
+var d = data[j];
+bars.push(
+<div key={j} style={{ flex: 1, display: “flex”, flexDirection: “column”, alignItems: “center”, gap: 4 }}>
+<div style={{ display: “flex”, gap: 3, alignItems: “flex-end”, width: “100%”, justifyContent: “center” }}>
+<div style={{ width: “40%”, maxWidth: 20, height: (d.v / mx) * 70, background: “linear-gradient(180deg,#00E676,#00C853)”, borderRadius: “4px 4px 0 0”, minHeight: 4 }} />
+<div style={{ width: “40%”, maxWidth: 20, height: (d.c / mx) * 70, background: “linear-gradient(180deg,#FF1744,#D50000)”, borderRadius: “4px 4px 0 0”, minHeight: 4 }} />
+</div>
+<span style={{ fontSize: 10, color: “#888” }}>{d.month}</span>
+</div>
+);
+}
+return <div style={{ display: “flex”, alignItems: “flex-end”, gap: 8, height: h, padding: “0 4px” }}>{bars}</div>;
+}
+
+function Donut(props) {
+var segs = props.segs;
+var size = 120;
+var tot = 0;
+for (var i = 0; i < segs.length; i++) tot += segs[i].value;
+var cum = 0;
+var r = (size - 16) / 2;
+var cx = size / 2;
+var cy = size / 2;
+var paths = [];
+for (var j = 0; j < segs.length; j++) {
+var sa = (cum / tot) * 2 * Math.PI - Math.PI / 2;
+cum += segs[j].value;
+var ea = (cum / tot) * 2 * Math.PI - Math.PI / 2;
+var la = segs[j].value / tot > 0.5 ? 1 : 0;
+paths.push(<path key={j} d={“M “ + (cx + r * Math.cos(sa)) + “ “ + (cy + r * Math.sin(sa)) + “ A “ + r + “ “ + r + “ 0 “ + la + “ 1 “ + (cx + r * Math.cos(ea)) + “ “ + (cy + r * Math.sin(ea))} fill=“none” stroke={segs[j].color} strokeWidth={14} strokeLinecap=“round” />);
+}
+return (
+<svg width={size} height={size}>
+<circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={14} />
+{paths}
+<text x={cx} y={cy - 6} textAnchor=“middle” fill=”#fff” fontSize=“16” fontWeight=“700”>{tot.toFixed(0)}€</text>
+<text x={cx} y={cy + 10} textAnchor=“middle” fill=”#888” fontSize=“9”>TOTAL</text>
+</svg>
+);
+}
+
+/* ========================================
+CONSTANTS
+======================================== */
+
+var CATS = [“Chirie”, “Taxe”, “Impozite”, “Credite”, “Mâncare”, “Abonamente”, “Ieșiri”, “Datorii”, “Transport”, “Facturi”, “Sănătate”, “Cumpărături”, “Familie”, “Vacanțe”, “Alte cheltuieli”];
+var INC_T = [“Salariu”, “Bonus”, “Freelance”, “Vânzare”, “Rambursare”, “Cadou”, “Dividende”, “Alte venituri”];
+var MO = [“Ian”, “Feb”, “Mar”, “Apr”, “Mai”, “Iun”, “Iul”, “Aug”, “Sep”, “Oct”, “Nov”, “Dec”];
+var CC = { Chirie: “#FF6D00”, Abonamente: “#AA00FF”, “Mâncare”: “#00BFA5”, Credite: “#FF1744”, Impozite: “#FFD600”, Facturi: “#448AFF”, “Ieșiri”: “#E040FB”, Datorii: “#FF3D00”, Transport: “#00B0FF”, “Sănătate”: “#69F0AE” };
+var MONTHLY = [{ month: “Ian”, v: 3200, c: 2100 }, { month: “Feb”, v: 3400, c: 2300 }, { month: “Mar”, v: 3800, c: 2600 }, { month: “Apr”, v: 4930, c: 1756 }];
+
+var NAV = [
+{ id: “dashboard”, l: “Panou Principal”, ico: “pie” }, { id: “venituri”, l: “Venituri”, ico: “up” },
+{ id: “cheltuieli”, l: “Cheltuieli”, ico: “down” }, { id: “taxe”, l: “Taxe & Impozite”, ico: “dollar” },
+{ id: “datorii”, l: “Datorii & Credite”, ico: “card” }, { id: “facturi”, l: “Facturi”, ico: “file” },
+{ id: “abonamente”, l: “Abonamente”, ico: “moon” }, { id: “calendar”, l: “Calendar”, ico: “cal” },
+{ id: “buget”, l: “Buget”, ico: “monitor” }, { id: “obiective”, l: “Obiective”, ico: “target” },
+{ id: “situatie”, l: “Situația Mea”, ico: “pie” }, { id: “export”, l: “Export”, ico: “dl” },
+{ id: “chatbot”, l: “Chatbot”, ico: “chat” }, { id: “configurare”, l: “Configurare”, ico: “bolt” }
+];
+
+var ICO_MAP = { up: IcoUp, down: IcoDown, file: IcoFile, card: IcoCard, dollar: IcoDollar, moon: IcoMoon, cal: IcoCal, folder: IcoFolder, dl: IcoDl, bolt: IcoBolt, monitor: IcoMonitor, target: IcoTarget, pie: IcoPie, chat: IcoChat };
+
+var G = { background: “linear-gradient(135deg,#FFD700,#FFA000)”, WebkitBackgroundClip: “text”, WebkitTextFillColor: “transparent”, fontWeight: 700 };
+var CRD = { background: “linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))”, border: “1px solid rgba(255,255,255,0.07)”, borderRadius: 16, padding: 18, marginBottom: 12 };
+var LBL = { fontSize: 11, color: “#888”, fontWeight: 600, letterSpacing: 1, textTransform: “uppercase”, marginBottom: 4 };
+var SEC = { fontSize: 13, fontWeight: 700, color: “#FFD700”, letterSpacing: 1.5, textTransform: “uppercase”, marginBottom: 14, display: “flex”, alignItems: “center”, gap: 8 };
+var INP = { width: “100%”, padding: “10px 12px”, borderRadius: 10, border: “1px solid rgba(255,255,255,0.1)”, background: “rgba(255,255,255,0.04)”, color: “#E8E8EC”, fontSize: 13, fontFamily: “inherit”, outline: “none”, boxSizing: “border-box” };
+
+function tg(c) { return { display: “inline-block”, padding: “2px 8px”, borderRadius: 6, background: c + “15”, color: c, fontSize: 10, fontWeight: 600 }; }
+
+var INIT_INC = [
+{ id: 1, title: “Salariu”, amount: 3200, method: “card”, type: “Salariu”, date: “2026-04-01”, recurring: “lunar”, status: “confirmat” },
+{ id: 2, title: “Freelance”, amount: 800, method: “card”, type: “Freelance”, date: “2026-04-05”, recurring: “nu”, status: “confirmat” },
+{ id: 3, title: “Bonus”, amount: 500, method: “card”, type: “Bonus”, date: “2026-04-07”, recurring: “nu”, status: “confirmat” },
+{ id: 4, title: “Vânzare OLX”, amount: 150, method: “cash”, type: “Vânzare”, date: “2026-04-03”, recurring: “nu”, status: “confirmat” },
+{ id: 5, title: “Cadou”, amount: 200, method: “cash”, type: “Cadou”, date: “2026-04-02”, recurring: “nu”, status: “confirmat” }
+];
+
+var INIT_EXP = [
+{ id: 201, title: “Chirie”, amount: 750, category: “Chirie”, date: “2026-04-02”, due: “2026-04-05”, status: “platit”, method: “card”, recurring: “lunar” },
+{ id: 202, title: “Netflix”, amount: 15.99, category: “Abonamente”, date: “2026-04-03”, due: “2026-04-03”, status: “platit”, method: “card”, recurring: “lunar” },
+{ id: 203, title: “Spotify”, amount: 9.99, category: “Abonamente”, date: “2026-04-03”, due: “2026-04-10”, status: “neplatit”, method: “”, recurring: “lunar” },
+{ id: 204, title: “Impozit”, amount: 120, category: “Impozite”, date: “2026-04-10”, due: “2026-04-15”, status: “neplatit”, method: “”, recurring: “anual” },
+{ id: 205, title: “Rată ING”, amount: 350, category: “Credite”, date: “2026-04-12”, due: “2026-04-15”, status: “neplatit”, method: “”, recurring: “lunar” },
+{ id: 206, title: “Lidl”, amount: 85.50, category: “Mâncare”, date: “2026-04-04”, due: “2026-04-04”, status: “platit”, method: “card”, recurring: “nu” },
+{ id: 207, title: “Vodafone”, amount: 25, category: “Facturi”, date: “2026-04-06”, due: “2026-04-20”, status: “neplatit”, method: “”, recurring: “lunar” },
+{ id: 208, title: “Sală”, amount: 40, category: “Abonamente”, date: “2026-04-01”, due: “2026-04-01”, status: “platit”, method: “cash”, recurring: “lunar” },
+{ id: 209, title: “Restaurant”, amount: 62, category: “Ieșiri”, date: “2026-04-06”, due: “2026-04-06”, status: “platit”, method: “cash”, recurring: “nu” },
+{ id: 210, title: “Datorie Marius”, amount: 200, category: “Datorii”, date: “2026-04-08”, due: “2026-04-30”, status: “partial”, method: “”, recurring: “nu” },
+{ id: 211, title: “Electricitate”, amount: 95, category: “Facturi”, date: “2026-04-07”, due: “2026-04-25”, status: “programat”, method: “”, recurring: “lunar” },
+{ id: 212, title: “Benzină”, amount: 65, category: “Transport”, date: “2026-04-05”, due: “2026-04-05”, status: “platit”, method: “card”, recurring: “nu” }
+];
+
+var INIT_DEBTS = [
+{ id: 301, title: “Credit imobiliar ING”, creditor: “ING Bank”, totalAmount: 45000, paidAmount: 12600, monthlyPayment: 350, payDay: 15, startDate: “2023-01-15”, status: “activa” },
+{ id: 302, title: “Credit nevoi BRD”, creditor: “BRD”, totalAmount: 8000, paidAmount: 5200, monthlyPayment: 200, payDay: 10, startDate: “2024-03-10”, status: “activa” },
+{ id: 303, title: “Împrumut Marius”, creditor: “Marius Popescu”, totalAmount: 500, paidAmount: 300, monthlyPayment: 100, payDay: 1, startDate: “2026-01-01”, status: “activa” },
+{ id: 304, title: “Rate telefon Samsung”, creditor: “Orange”, totalAmount: 1200, paidAmount: 1200, monthlyPayment: 50, payDay: 20, startDate: “2024-01-20”, status: “achitata” },
+{ id: 305, title: “Împrumut familie”, creditor: “Tata”, totalAmount: 2000, paidAmount: 800, monthlyPayment: 150, payDay: 5, startDate: “2025-09-05”, status: “activa” }
+];
+
+var INIT_TAXES = [
+{ id: 401, title: “Impozit locuință”, amount: 120, frequency: “anual”, due: “2026-04-15”, status: “neplatit”, method: “”, notes: “Primărie sector 3” },
+{ id: 402, title: “Taxă auto”, amount: 85, frequency: “anual”, due: “2026-06-30”, status: “neplatit”, method: “”, notes: “ITP + rovignetă” },
+{ id: 403, title: “CAS (contribuții)”, amount: 280, frequency: “lunar”, due: “2026-04-25”, status: “neplatit”, method: “”, notes: “Contribuții sociale” },
+{ id: 404, title: “Impozit venit PFA”, amount: 150, frequency: “trimestrial”, due: “2026-03-25”, status: “platit”, method: “card”, notes: “T1 2026” },
+{ id: 405, title: “Taxă gunoi”, amount: 25, frequency: “lunar”, due: “2026-04-10”, status: “platit”, method: “card”, notes: “” },
+{ id: 406, title: “CASS (sănătate)”, amount: 190, frequency: “lunar”, due: “2026-04-25”, status: “neplatit”, method: “”, notes: “” }
+];
+
+var INIT_SUBS = [
+{ id: 601, title: “Netflix”, amount: 15.99, payDay: 3, frequency: “lunar”, category: “Streaming”, supplier: “Netflix”, status: “platit”, method: “card” },
+{ id: 602, title: “Spotify”, amount: 9.99, payDay: 10, frequency: “lunar”, category: “Muzică”, supplier: “Spotify”, status: “neplatit”, method: “” },
+{ id: 603, title: “iCloud 200GB”, amount: 2.99, payDay: 3, frequency: “lunar”, category: “Cloud”, supplier: “Apple”, status: “platit”, method: “card” },
+{ id: 604, title: “Sală fitness”, amount: 40, payDay: 1, frequency: “lunar”, category: “Sport”, supplier: “WorldClass”, status: “platit”, method: “cash” },
+{ id: 605, title: “Adobe Creative”, amount: 55, payDay: 15, frequency: “lunar”, category: “Software”, supplier: “Adobe”, status: “neplatit”, method: “” },
+{ id: 606, title: “Internet Digi”, amount: 45, payDay: 15, frequency: “lunar”, category: “Internet”, supplier: “Digi”, status: “platit”, method: “card” },
+{ id: 607, title: “Telefon Orange”, amount: 25, payDay: 20, frequency: “lunar”, category: “Telefon”, supplier: “Orange”, status: “neplatit”, method: “” }
+];
+
+var INIT_BUDGETS = [
+{ id: 701, category: “Mâncare”, limit: 400, spent: 85.50 },
+{ id: 702, category: “Abonamente”, limit: 200, spent: 168.97 },
+{ id: 703, category: “Ieșiri”, limit: 150, spent: 62 },
+{ id: 704, category: “Transport”, limit: 120, spent: 65 },
+{ id: 705, category: “Sănătate”, limit: 100, spent: 32 },
+{ id: 706, category: “Cumpărături”, limit: 200, spent: 0 }
+];
+
+var INIT_GOALS = [
+{ id: 801, title: “Fond urgență”, target: 3000, current: 1200, deadline: “2026-12-31”, status: “activ” },
+{ id: 802, title: “Achit credit BRD”, target: 2800, current: 0, deadline: “2027-06-30”, status: “activ” },
+{ id: 803, title: “Vacanță Grecia”, target: 1500, current: 600, deadline: “2026-07-01”, status: “activ” },
+{ id: 804, title: “Laptop nou”, target: 2000, current: 2000, deadline: “2026-03-01”, status: “atins” }
+];
+
+/* ========================================
+MAIN APP COMPONENT
+======================================== */
+
+export default function App() {
+var _a = useState(INIT_INC), incomes = _a[0], setIncomes = _a[1];
+var _b = useState(INIT_EXP), expenses = _b[0], setExpenses = _b[1];
+var _c = useState(“dashboard”), page = _c[0], setPage = _c[1];
+var _d = useState(false), sidebar = _d[0], setSidebar = _d[1];
+var _e = useState(false), showIncForm = _e[0], setShowIncForm = _e[1];
+var _f = useState(null), editInc = _f[0], setEditInc = _f[1];
+var _g = useState({ month: “04”, year: “2026”, type: “toate”, search: “” }), incFilter = _g[0], setIncFilter = _g[1];
+var _h = useState({ title: “”, amount: “”, method: “card”, type: “Salariu”, date: “2026-04-08”, recurring: “nu”, status: “confirmat” }), incForm = _h[0], setIncForm = _h[1];
+var _i = useState(false), showExpForm = _i[0], setShowExpForm = _i[1];
+var _j = useState(null), editExp = _j[0], setEditExp = _j[1];
+var _k = useState({ month: “04”, year: “2026”, category: “toate”, status: “toate”, search: “” }), expFilter = _k[0], setExpFilter = _k[1];
+var _l = useState({ title: “”, amount: “”, category: “Mâncare”, date: “2026-04-08”, due: “2026-04-08”, status: “neplatit”, method: “”, recurring: “nu” }), expForm = _l[0], setExpForm = _l[1];
+var _m = useState(null), payPopup = _m[0], setPayPopup = _m[1];
+var _n = useState(null), delConfirm = _n[0], setDelConfirm = _n[1];
+var _o = useState(””), delType = _o[0], setDelType = _o[1];
+var _p = useState(false), searchOpen = _p[0], setSearchOpen = _p[1];
+var _q = useState(””), searchQ = _q[0], setSearchQ = _q[1];
+var _r = useState(INIT_DEBTS), debts = _r[0], setDebts = _r[1];
+var _s = useState(false), showDebtForm = _s[0], setShowDebtForm = _s[1];
+var _t = useState(null), editDebt = _t[0], setEditDebt = _t[1];
+var _u = useState({ title: “”, creditor: “”, totalAmount: “”, paidAmount: “0”, monthlyPayment: “”, payDay: “1”, startDate: “2026-04-08”, status: “activa” }), debtForm = _u[0], setDebtForm = _u[1];
+var _v = useState(INIT_TAXES), taxes = _v[0], setTaxes = _v[1];
+var _w = useState(false), showTaxForm = _w[0], setShowTaxForm = _w[1];
+var _x = useState(null), editTax = _x[0], setEditTax = _x[1];
+var _y = useState({ title: “”, amount: “”, frequency: “lunar”, due: “2026-04-08”, status: “neplatit”, method: “”, notes: “” }), taxForm = _y[0], setTaxForm = _y[1];
+var _z = useState(null), taxPayPopup = _z[0], setTaxPayPopup = _z[1];
+
+// Facturi state
+var _fa = useState([
+{ id: 501, title: “Factură Vodafone Apr”, amount: 25, category: “Telefon”, supplier: “Vodafone”, date: “2026-04-06”, due: “2026-04-20”, status: “neplatit”, method: “”, fileType: “PDF” },
+{ id: 502, title: “Factură electricitate”, amount: 95, category: “Electricitate”, supplier: “Enel”, date: “2026-04-07”, due: “2026-04-25”, status: “neplatit”, method: “”, fileType: “PDF” },
+{ id: 503, title: “Chitanță Lidl”, amount: 85.50, category: “Mâncare”, supplier: “Lidl”, date: “2026-04-04”, due: “2026-04-04”, status: “platit”, method: “card”, fileType: “JPG” },
+{ id: 504, title: “Factură internet Digi”, amount: 45, category: “Internet”, supplier: “Digi”, date: “2026-04-03”, due: “2026-04-15”, status: “platit”, method: “card”, fileType: “PDF” },
+{ id: 505, title: “Factură apă”, amount: 35, category: “Apă”, supplier: “Apa Nova”, date: “2026-04-05”, due: “2026-04-28”, status: “neplatit”, method: “”, fileType: “PDF” }
+]), invoices = _fa[0], setInvoices = _fa[1];
+var _fb = useState(false), showInvForm = _fb[0], setShowInvForm = _fb[1];
+var _fc = useState(null), editInv = _fc[0], setEditInv = _fc[1];
+var _fd = useState({ title: “”, amount: “”, category: “”, supplier: “”, date: “2026-04-08”, due: “2026-04-08”, status: “neplatit”, method: “”, fileType: “PDF” }), invForm = _fd[0], setInvForm = _fd[1];
+var _fe = useState(null), invPayPopup = _fe[0], setInvPayPopup = _fe[1];
+var _ff = useState({ search: “”, status: “toate” }), invFilter = _ff[0], setInvFilter = _ff[1];
+
+// Chatbot state
+var _ca = useState([]), chatMessages = _ca[0], setChatMessages = _ca[1];
+var _cb = useState(null), chatDetected = _cb[0], setChatDetected = _cb[1];
+var _cc = useState(false), chatProcessing = _cc[0], setChatProcessing = _cc[1];
+var _sa = useState(INIT_SUBS), subs = _sa[0], setSubs = _sa[1];
+var _sp = useState(null), subPayPopup = _sp[0], setSubPayPopup = _sp[1];
+var _ba = useState(INIT_BUDGETS), budgets = _ba[0], setBudgets = _ba[1];
+var _ga = useState(INIT_GOALS), goals = _ga[0], setGoals = _ga[1];
+var _gf = useState(false), showGoalForm = _gf[0], setShowGoalForm = _gf[1];
+var _gg = useState({ title: “”, target: “”, current: “0”, deadline: “2026-12-31”, status: “activ” }), goalForm = _gg[0], setGoalForm = _gg[1];
+
+// Income computed
+var filtInc = useMemo(function () {
+return incomes.filter(function (inc) {
+var d = new Date(inc.date);
+var m = String(d.getMonth() + 1).padStart(2, “0”);
+if (incFilter.month !== “toate” && m !== incFilter.month) return false;
+if (incFilter.type !== “toate” && inc.type !== incFilter.type) return false;
+if (incFilter.search && inc.title.toLowerCase().indexOf(incFilter.search.toLowerCase()) === -1) return false;
+return true;
+});
+}, [incomes, incFilter]);
+
+var incSt = useMemo(function () {
+var t = 0, tc = 0, tk = 0;
+for (var i = 0; i < filtInc.length; i++) { t += filtInc[i].amount; if (filtInc[i].method === “card”) tc += filtInc[i].amount; if (filtInc[i].method === “cash”) tk += filtInc[i].amount; }
+return { total: t, totalCard: tc, totalCash: tk, count: filtInc.length };
+}, [filtInc]);
+
+// Expense computed
+var filtExp = useMemo(function () {
+return expenses.filter(function (exp) {
+var d = new Date(exp.date);
+var m = String(d.getMonth() + 1).padStart(2, “0”);
+if (expFilter.month !== “toate” && m !== expFilter.month) return false;
+if (expFilter.category !== “toate” && exp.category !== expFilter.category) return false;
+if (expFilter.status !== “toate” && exp.status !== expFilter.status) return false;
+if (expFilter.search && exp.title.toLowerCase().indexOf(expFilter.search.toLowerCase()) === -1) return false;
+return true;
+});
+}, [expenses, expFilter]);
+
+var expSt = useMemo(function () {
+var t = 0, p = 0, np = 0, tc = 0, tk = 0, bc = {};
+for (var i = 0; i < filtExp.length; i++) {
+var e = filtExp[i]; t += e.amount;
+if (e.status === “platit”) p += e.amount;
+if (e.status === “neplatit”) np += e.amount;
+if (e.method === “card”) tc += e.amount;
+if (e.method === “cash”) tk += e.amount;
+bc[e.category] = (bc[e.category] || 0) + e.amount;
+}
+return { total: t, platit: p, neplatit: np, totalCard: tc, totalCash: tk, byCat: bc, count: filtExp.length };
+}, [filtExp]);
+
+// Dashboard stats
+var dS = useMemo(function () {
+var ven = 0, ch = 0, np = 0, pl = 0, pa = 0, pr = 0, bc = {};
+for (var i = 0; i < incomes.length; i++) { var d = new Date(incomes[i].date); if (d.getMonth() === 3 && d.getFullYear() === 2026) ven += incomes[i].amount; }
+for (var j = 0; j < expenses.length; j++) { var ex = expenses[j]; ch += ex.amount; bc[ex.category] = (bc[ex.category] || 0) + ex.amount; if (ex.status === “neplatit”) np++; if (ex.status === “platit”) pl++; if (ex.status === “partial”) pa++; if (ex.status === “programat”) pr++; }
+return { ven: ven, ch: ch, sold: ven - ch, np: np, pl: pl, pa: pa, pr: pr, bc: bc };
+}, [incomes, expenses]);
+
+var dSegs = [];
+var bcKeys = Object.keys(dS.bc);
+for (var di = 0; di < bcKeys.length; di++) { dSegs.push({ label: bcKeys[di], value: dS.bc[bcKeys[di]], color: CC[bcKeys[di]] || “#666” }); }
+
+// Actions
+function saveInc() {
+if (!incForm.title || !incForm.amount) return;
+var amt = parseFloat(incForm.amount); if (isNaN(amt) || amt <= 0) return;
+if (editInc) { setIncomes(function (p) { return p.map(function (i) { return i.id === editInc.id ? mg(incForm, { id: editInc.id, amount: amt }) : i; }); }); }
+else { setIncomes(function (p) { return [mg(incForm, { id: Date.now(), amount: amt })].concat(p); }); }
+setIncForm({ title: “”, amount: “”, method: “card”, type: “Salariu”, date: “2026-04-08”, recurring: “nu”, status: “confirmat” }); setEditInc(null); setShowIncForm(false);
+}
+
+function saveExp() {
+if (!expForm.title || !expForm.amount) return;
+var amt = parseFloat(expForm.amount); if (isNaN(amt) || amt <= 0) return;
+if (expForm.status === “platit” && !expForm.method) return;
+if (editExp) { setExpenses(function (p) { return p.map(function (e) { return e.id === editExp.id ? mg(expForm, { id: editExp.id, amount: amt }) : e; }); }); }
+else { setExpenses(function (p) { return [mg(expForm, { id: Date.now(), amount: amt })].concat(p); }); }
+setExpForm({ title: “”, amount: “”, category: “Mâncare”, date: “2026-04-08”, due: “2026-04-08”, status: “neplatit”, method: “”, recurring: “nu” }); setEditExp(null); setShowExpForm(false);
+}
+
+function markPaid(id, method) { setExpenses(function (p) { return p.map(function (e) { return e.id === id ? mg(e, { status: “platit”, method: method }) : e; }); }); setPayPopup(null); }
+function handlePayToggle(exp) { if (exp.status === “platit”) { setExpenses(function (p) { return p.map(function (e) { return e.id === exp.id ? mg(e, { status: “neplatit”, method: “” }) : e; }); }); } else { setPayPopup(exp.id); } }
+function delItem(id) { if (delType === “inc”) setIncomes(function (p) { return p.filter(function (i) { return i.id !== id; }); }); else if (delType === “exp”) setExpenses(function (p) { return p.filter(function (e) { return e.id !== id; }); }); else if (delType === “debt”) setDebts(function (p) { return p.filter(function (d) { return d.id !== id; }); }); else if (delType === “tax”) setTaxes(function (p) { return p.filter(function (t) { return t.id !== id; }); }); else if (delType === “inv”) setInvoices(function (p) { return p.filter(function (v) { return v.id !== id; }); }); setDelConfirm(null); }
+
+// Invoice functions
+function saveInv() {
+if (!invForm.title || !invForm.amount) return;
+var amt = parseFloat(invForm.amount); if (isNaN(amt) || amt <= 0) return;
+if (invForm.status === “platit” && !invForm.method) return;
+var obj = mg(invForm, { id: editInv ? editInv.id : Date.now(), amount: amt });
+if (editInv) { setInvoices(function (p) { return p.map(function (v) { return v.id === editInv.id ? obj : v; }); }); }
+else { setInvoices(function (p) { return [obj].concat(p); }); }
+setInvForm({ title: “”, amount: “”, category: “”, supplier: “”, date: “2026-04-08”, due: “2026-04-08”, status: “neplatit”, method: “”, fileType: “PDF” }); setEditInv(null); setShowInvForm(false);
+}
+function markInvPaid(id, method) { setInvoices(function (p) { return p.map(function (v) { return v.id === id ? mg(v, { status: “platit”, method: method }) : v; }); }); setInvPayPopup(null); }
+function handleInvPayToggle(inv) { if (inv.status === “platit”) { setInvoices(function (p) { return p.map(function (v) { return v.id === inv.id ? mg(v, { status: “neplatit”, method: “” }) : v; }); }); } else { setInvPayPopup(inv.id); } }
+
+// Chatbot - simulate AI detection from photo/screenshot
+function simulateChatDetection(type) {
+setChatProcessing(true);
+var msgs = chatMessages.slice();
+msgs.push({ from: “user”, text: “Am trimis o “ + type });
+setChatMessages(msgs);
+setTimeout(function () {
+var fakeData = [
+{ title: “Factură Enel Energie”, amount: 142.50, category: “Electricitate”, supplier: “Enel”, date: “2026-04-08”, due: “2026-04-28” },
+{ title: “Bon Kaufland”, amount: 67.30, category: “Mâncare”, supplier: “Kaufland”, date: “2026-04-08”, due: “2026-04-08” },
+{ title: “Factură Orange”, amount: 35, category: “Telefon”, supplier: “Orange”, date: “2026-04-07”, due: “2026-04-20” },
+{ title: “Chitanță farmacie”, amount: 28.90, category: “Sănătate”, supplier: “Catena”, date: “2026-04-08”, due: “2026-04-08” }
+];
+var detected = fakeData[Math.floor(Math.random() * fakeData.length)];
+var msgs2 = chatMessages.slice();
+msgs2.push({ from: “user”, text: “Am trimis o “ + type });
+msgs2.push({ from: “bot”, text: “Am detectat:\n• “ + detected.title + “\n• Sumă: “ + detected.amount + “€\n• Furnizor: “ + detected.supplier + “\n• Categorie: “ + detected.category + “\n• Scadență: “ + detected.due + “\n\nConfirmă dacă e corect și selectează statusul plății.” });
+setChatMessages(msgs2);
+setChatDetected(detected);
+setChatProcessing(false);
+}, 1500);
+}
+
+function confirmChatEntry(status, method) {
+if (!chatDetected) return;
+var newInv = mg(chatDetected, { id: Date.now(), status: status, method: method || “”, fileType: “IMG” });
+setInvoices(function (p) { return [newInv].concat(p); });
+var catForExp = chatDetected.category === “Mâncare” ? “Mâncare” : chatDetected.category === “Sănătate” ? “Sănătate” : “Facturi”;
+var newExp = { id: Date.now() + 1, title: chatDetected.title, amount: chatDetected.amount, category: catForExp, date: chatDetected.date, due: chatDetected.due, status: status, method: method || “”, recurring: “nu” };
+setExpenses(function (p) { return [newExp].concat(p); });
+var msgs = chatMessages.slice();
+msgs.push({ from: “bot”, text: “Adăugat cu succes la Facturi și Cheltuieli (” + (status === “platit” ? “Plătit “ + method : “Neplătit”) + “).” });
+setChatMessages(msgs);
+setChatDetected(null);
+}
+
+function saveTax() {
+if (!taxForm.title || !taxForm.amount) return;
+var amt = parseFloat(taxForm.amount); if (isNaN(amt) || amt <= 0) return;
+if (taxForm.status === “platit” && !taxForm.method) return;
+var obj = mg(taxForm, { id: editTax ? editTax.id : Date.now(), amount: amt });
+if (editTax) { setTaxes(function (p) { return p.map(function (t) { return t.id === editTax.id ? obj : t; }); }); }
+else { setTaxes(function (p) { return [obj].concat(p); }); }
+setTaxForm({ title: “”, amount: “”, frequency: “lunar”, due: “2026-04-08”, status: “neplatit”, method: “”, notes: “” }); setEditTax(null); setShowTaxForm(false);
+}
+
+function markTaxPaid(id, method) {
+setTaxes(function (p) { return p.map(function (t) { return t.id === id ? mg(t, { status: “platit”, method: method }) : t; }); });
+setTaxPayPopup(null);
+}
+
+function handleTaxPayToggle(tax) {
+if (tax.status === “platit”) { setTaxes(function (p) { return p.map(function (t) { return t.id === tax.id ? mg(t, { status: “neplatit”, method: “” }) : t; }); }); }
+else { setTaxPayPopup(tax.id); }
+}
+
+function saveDebt() {
+if (!debtForm.title || !debtForm.totalAmount || !debtForm.monthlyPayment) return;
+var ta = parseFloat(debtForm.totalAmount); var pa = parseFloat(debtForm.paidAmount) || 0; var mp = parseFloat(debtForm.monthlyPayment); var pd = parseInt(debtForm.payDay) || 1;
+if (isNaN(ta) || ta <= 0 || isNaN(mp) || mp <= 0) return;
+var obj = mg(debtForm, { id: editDebt ? editDebt.id : Date.now(), totalAmount: ta, paidAmount: pa, monthlyPayment: mp, payDay: pd });
+if (editDebt) { setDebts(function (p) { return p.map(function (d) { return d.id === editDebt.id ? obj : d; }); }); }
+else { setDebts(function (p) { return [obj].concat(p); }); }
+setDebtForm({ title: “”, creditor: “”, totalAmount: “”, paidAmount: “0”, monthlyPayment: “”, payDay: “1”, startDate: “2026-04-08”, status: “activa” }); setEditDebt(null); setShowDebtForm(false);
+}
+
+function addPaymentToDebt(id) {
+setDebts(function (p) { return p.map(function (d) {
+if (d.id !== id) return d;
+var newPaid = d.paidAmount + d.monthlyPayment;
+var newStatus = newPaid >= d.totalAmount ? “achitata” : d.status;
+return mg(d, { paidAmount: Math.min(newPaid, d.totalAmount), status: newStatus });
+}); });
+}
+
+// ===== PAGE: DATORII =====
+function renderDatorii() {
+var totalDatorat = 0; var totalPlatit = 0; var totalRamas = 0; var active = 0;
+for (var i = 0; i < debts.length; i++) {
+totalDatorat += debts[i].totalAmount; totalPlatit += debts[i].paidAmount;
+totalRamas += (debts[i].totalAmount - debts[i].paidAmount);
+if (debts[i].status === “activa”) active++;
+}
+
+```
+var debtCards = [];
+for (var j = 0; j < debts.length; j++) {
+  var debt = debts[j];
+  var remaining = debt.totalAmount - debt.paidAmount;
+  var pct = debt.totalAmount > 0 ? Math.round((debt.paidAmount / debt.totalAmount) * 100) : 0;
+  var monthsLeft = debt.monthlyPayment > 0 ? Math.ceil(remaining / debt.monthlyPayment) : 0;
+  var estDate = "";
+  if (monthsLeft > 0) {
+    var now = new Date(2026, 3, 8);
+    now.setMonth(now.getMonth() + monthsLeft);
+    estDate = MO[now.getMonth()] + " " + now.getFullYear();
+  }
+  var sc = debt.status === "achitata" ? "#00E676" : debt.status === "intarziata" ? "#FF1744" : "#FFD700";
+
+  debtCards.push(
+    <div key={debt.id} style={mg(CRD, { padding: 16, borderLeft: "4px solid " + sc, marginBottom: 10 })}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: debt.status === "achitata" ? "#888" : "#E8E8EC" }}>{debt.title}</div>
+          <div style={{ fontSize: 11, color: "#888", marginTop: 2 }}>Creditor: {debt.creditor}</div>
+          <div style={{ marginTop: 4, display: "flex", gap: 6 }}>
+            <span style={{ color: sc, background: sc + "18", border: "1px solid " + sc + "35", padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{debt.status === "achitata" ? "Achitată" : debt.status === "intarziata" ? "Întârziată" : "Activă"}</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          <button onClick={function () { var d = debt; setDebtForm({ title: d.title, creditor: d.creditor, totalAmount: String(d.totalAmount), paidAmount: String(d.paidAmount), monthlyPayment: String(d.monthlyPayment), payDay: String(d.payDay), startDate: d.startDate, status: d.status }); setEditDebt(d); setShowDebtForm(true); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,255,255,0.06)", color: "#888", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoEdit /></button>
+          <button onClick={function () { var did = debt.id; setDelConfirm(did); setDelType("debt"); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,23,68,0.08)", color: "#FF1744", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoTrash /></button>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+        <div style={{ textAlign: "center", padding: 8, background: "rgba(255,255,255,0.03)", borderRadius: 10 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>TOTAL</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#E8E8EC" }}>{debt.totalAmount.toLocaleString()}€</div>
+        </div>
+        <div style={{ textAlign: "center", padding: 8, background: "rgba(0,230,118,0.05)", borderRadius: 10 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>PLĂTIT</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#00E676" }}>{debt.paidAmount.toLocaleString()}€</div>
+        </div>
+        <div style={{ textAlign: "center", padding: 8, background: "rgba(255,23,68,0.05)", borderRadius: 10 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>RĂMAS</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#FF1744" }}>{remaining.toLocaleString()}€</div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+          <span style={{ fontSize: 11, color: "#888" }}>Progres rambursare</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: pct >= 100 ? "#00E676" : "#FFD700" }}>{pct}%</span>
+        </div>
+        <div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)" }}>
+          <div style={{ height: 10, borderRadius: 5, background: pct >= 100 ? "#00E676" : pct > 50 ? "#FFD700" : "#FF6D00", width: Math.min(pct, 100) + "%", transition: "width 0.5s" }} />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+        <div style={{ padding: "6px 10px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>RATĂ LUNARĂ</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#E8E8EC" }}>{debt.monthlyPayment}€ / lună</div>
+        </div>
+        <div style={{ padding: "6px 10px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>ZIUA PLĂȚII</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#E8E8EC" }}>Pe {debt.payDay} ale lunii</div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+        <div style={{ padding: "6px 10px", background: "rgba(68,138,255,0.05)", borderRadius: 8 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>LUNI RĂMASE</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#448AFF" }}>{debt.status === "achitata" ? "0" : monthsLeft} luni</div>
+        </div>
+        <div style={{ padding: "6px 10px", background: "rgba(170,0,255,0.05)", borderRadius: 8 }}>
+          <div style={{ fontSize: 9, color: "#666", fontWeight: 600 }}>FINALIZARE ESTIMATĂ</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "#AA00FF" }}>{debt.status === "achitata" ? "Achitată" : estDate}</div>
+        </div>
+      </div>
+
+      {debt.status !== "achitata" ? <button onClick={function () { var did = debt.id; addPaymentToDebt(did); }} style={{ width: "100%", padding: 10, borderRadius: 10, border: "none", background: "linear-gradient(135deg,#00E676,#00C853)", color: "#000", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><IcoCheck /> Marchează rată plătită ({debt.monthlyPayment}€)</button> : null}
+    </div>
+  );
+}
+
+return (
+  <div>
+    <div style={{ marginBottom: 28 }}>
+      <div style={mg(CRD, { background: "linear-gradient(135deg,rgba(255,109,0,0.08),rgba(255,61,0,0.02))", borderColor: "rgba(255,109,0,0.15)", textAlign: "center" })}>
+        <div style={LBL}>TOTAL DATORII</div>
+        <div style={{ fontSize: 36, fontWeight: 700, color: "#FF6D00" }}>{totalDatorat.toLocaleString()}€</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+        <div style={mg(CRD, { padding: 12, textAlign: "center" })}>
+          <div style={{ fontSize: 9, color: "#00E676", fontWeight: 700 }}>PLĂTIT</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#00E676" }}>{totalPlatit.toLocaleString()}€</div>
+        </div>
+        <div style={mg(CRD, { padding: 12, textAlign: "center" })}>
+          <div style={{ fontSize: 9, color: "#FF1744", fontWeight: 700 }}>RĂMAS</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#FF1744" }}>{totalRamas.toLocaleString()}€</div>
+        </div>
+        <div style={mg(CRD, { padding: 12, textAlign: "center" })}>
+          <div style={{ fontSize: 9, color: "#FFD700", fontWeight: 700 }}>ACTIVE</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#FFD700" }}>{active}</div>
+        </div>
+      </div>
+    </div>
+
+    <button onClick={function () { setDebtForm({ title: "", creditor: "", totalAmount: "", paidAmount: "0", monthlyPayment: "", payDay: "1", startDate: "2026-04-08", status: "activa" }); setEditDebt(null); setShowDebtForm(true); }} style={{ padding: "12px 20px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#FF6D00,#FF3D00)", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 16 }}><IcoPlus /> Adaugă Datorie</button>
+
+    <div style={SEC}><IcoCard /> Lista Datorii ({debts.length})</div>
+    {debtCards}
+
+    {showDebtForm ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setShowDebtForm(false); setEditDebt(null); }} /><div style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "90vh", background: "#12121A", borderRadius: "20px 20px 0 0", padding: 20, overflowY: "auto", zIndex: 1 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>{editDebt ? "Editează Datorie" : "Adaugă Datorie"}</div><button onClick={function () { setShowDebtForm(false); setEditDebt(null); }} style={{ background: "none", border: "none", color: "#666", cursor: "pointer" }}><IcoX /></button></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div><label style={mg(LBL, { display: "block" })}>Nume datorie *</label><input value={debtForm.title} onChange={function (e) { setDebtForm(mg(debtForm, { title: e.target.value })); }} placeholder="ex: Credit ING" style={INP} /></div>
+        <div><label style={mg(LBL, { display: "block" })}>Creditor</label><input value={debtForm.creditor} onChange={function (e) { setDebtForm(mg(debtForm, { creditor: e.target.value })); }} placeholder="ex: ING Bank" style={INP} /></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Datorie totală (€) *</label><input value={debtForm.totalAmount} onChange={function (e) { setDebtForm(mg(debtForm, { totalAmount: e.target.value })); }} type="number" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Sumă plătită (€)</label><input value={debtForm.paidAmount} onChange={function (e) { setDebtForm(mg(debtForm, { paidAmount: e.target.value })); }} type="number" style={INP} /></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Rată lunară (€) *</label><input value={debtForm.monthlyPayment} onChange={function (e) { setDebtForm(mg(debtForm, { monthlyPayment: e.target.value })); }} type="number" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Ziua plății (1-31)</label><input value={debtForm.payDay} onChange={function (e) { setDebtForm(mg(debtForm, { payDay: e.target.value })); }} type="number" style={INP} /></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Dată început</label><input value={debtForm.startDate} onChange={function (e) { setDebtForm(mg(debtForm, { startDate: e.target.value })); }} type="date" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Status</label><select value={debtForm.status} onChange={function (e) { setDebtForm(mg(debtForm, { status: e.target.value })); }} style={INP}><option value="activa">Activă</option><option value="intarziata">Întârziată</option><option value="achitata">Achitată</option></select></div>
+        </div>
+        <button onClick={saveDebt} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: "linear-gradient(135deg,#FF6D00,#FF3D00)", color: "#fff", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>{editDebt ? "Salvează" : "Adaugă"}</button>
+      </div>
+    </div></div> : null}
+  </div>
+);
+```
+
+}
+
+// Sub helpers
+function markSubPaid(id, method) { setSubs(function (p) { return p.map(function (s) { return s.id === id ? mg(s, { status: “platit”, method: method }) : s; }); }); setSubPayPopup(null); }
+function handleSubToggle(sub) { if (sub.status === “platit”) { setSubs(function (p) { return p.map(function (s) { return s.id === sub.id ? mg(s, { status: “neplatit”, method: “” }) : s; }); }); } else { setSubPayPopup(sub.id); } }
+
+function saveGoal() {
+if (!goalForm.title || !goalForm.target) return;
+var tgt = parseFloat(goalForm.target); var cur = parseFloat(goalForm.current) || 0;
+setGoals(function (p) { return [mg(goalForm, { id: Date.now(), target: tgt, current: cur })].concat(p); });
+setGoalForm({ title: “”, target: “”, current: “0”, deadline: “2026-12-31”, status: “activ” }); setShowGoalForm(false);
+}
+
+function addToGoal(id, amt) { setGoals(function (p) { return p.map(function (g) { if (g.id !== id) return g; var nc = Math.min(g.current + amt, g.target); return mg(g, { current: nc, status: nc >= g.target ? “atins” : “activ” }); }); }); }
+
+// ===== PAGE: ABONAMENTE =====
+function renderAbonamente() {
+var totalLunar = 0; var platite = 0; var neplatite = 0;
+for (var i = 0; i < subs.length; i++) { totalLunar += subs[i].amount; if (subs[i].status === “platit”) platite += subs[i].amount; else neplatite += subs[i].amount; }
+return (
+<div>
+<div style={{ marginBottom: 28 }}>
+<div style={mg(CRD, { background: “linear-gradient(135deg,rgba(170,0,255,0.08),rgba(170,0,255,0.02))”, borderColor: “rgba(170,0,255,0.15)”, textAlign: “center” })}><div style={LBL}>TOTAL ABONAMENTE LUNAR</div><div style={{ fontSize: 36, fontWeight: 700, color: “#AA00FF” }}>{totalLunar.toFixed(2)}€</div></div>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10 }}>
+<div style={mg(CRD, { padding: 14, textAlign: “center” })}><div style={{ fontSize: 10, color: “#00E676”, fontWeight: 700 }}>PLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: “#00E676” }}>{platite.toFixed(2)}€</div></div>
+<div style={mg(CRD, { padding: 14, textAlign: “center” })}><div style={{ fontSize: 10, color: “#FF1744”, fontWeight: 700 }}>NEPLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: “#FF1744” }}>{neplatite.toFixed(2)}€</div></div>
+</div>
+</div>
+<div style={SEC}><IcoMoon /> Abonamente ({subs.length})</div>
+{subs.map(function (sub) {
+var sc = sub.status === “platit” ? “#00E676” : “#FF1744”;
+return <div key={sub.id} style={mg(CRD, { padding: 14, borderLeft: “4px solid “ + sc, marginBottom: 8 })}>
+<div style={{ display: “flex”, alignItems: “center”, gap: 10 }}>
+<button onClick={function () { handleSubToggle(sub); }} style={{ width: 36, height: 36, borderRadius: 10, border: “none”, background: sub.status === “platit” ? “rgba(0,230,118,0.2)” : “rgba(255,255,255,0.06)”, color: sub.status === “platit” ? “#00E676” : “#555”, cursor: “pointer”, display: “flex”, alignItems: “center”, justifyContent: “center”, flexShrink: 0 }}><IcoCheck /></button>
+<div style={{ flex: 1 }}>
+<div style={{ fontSize: 14, fontWeight: 600, color: sub.status === “platit” ? “#888” : “#E8E8EC”, textDecoration: sub.status === “platit” ? “line-through” : “none” }}>{sub.title}</div>
+<div style={{ display: “flex”, gap: 5, marginTop: 3, flexWrap: “wrap” }}><Badge s={sub.status} />{sub.method ? <MBadge m={sub.method} /> : null}<span style={tg(”#AA00FF”)}>{sub.category}</span></div>
+<div style={{ fontSize: 10, color: “#555”, marginTop: 2 }}>{sub.supplier} • Ziua {sub.payDay} • {sub.frequency}</div>
+</div>
+<div style={{ fontSize: 18, fontWeight: 700, color: “#AA00FF” }}>{sub.amount}€</div>
+</div>
+</div>;
+})}
+{subPayPopup !== null ? <div style={{ position: “fixed”, inset: 0, zIndex: 300, display: “flex”, alignItems: “center”, justifyContent: “center” }}><div style={{ position: “absolute”, inset: 0, background: “rgba(0,0,0,0.7)” }} onClick={function () { setSubPayPopup(null); }} /><div style={{ position: “relative”, width: “85%”, maxWidth: 320, background: “#12121A”, borderRadius: 20, padding: 24, textAlign: “center”, zIndex: 1 }}><div style={{ fontSize: 24, marginBottom: 12 }}>🔄</div><div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Cum ai plătit?</div><div style={{ display: “flex”, gap: 10 }}><button onClick={function () { markSubPaid(subPayPopup, “card”); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: “2px solid #448AFF”, background: “rgba(68,138,255,0.12)”, color: “#448AFF”, fontWeight: 700, cursor: “pointer”, fontFamily: “inherit” }}>Card</button><button onClick={function () { markSubPaid(subPayPopup, “cash”); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: “2px solid #00E676”, background: “rgba(0,230,118,0.12)”, color: “#00E676”, fontWeight: 700, cursor: “pointer”, fontFamily: “inherit” }}>Cash</button></div></div></div> : null}
+</div>
+);
+}
+
+// ===== PAGE: CALENDAR =====
+function renderCalendar() {
+var days = [];
+var allPayments = expenses.concat(subs.map(function (s) { return mg(s, { due: “2026-04-” + String(s.payDay).padStart(2, “0”) }); }));
+for (var d = 1; d <= 30; d++) {
+var dateStr = “2026-04-” + String(d).padStart(2, “0”);
+var dayPayments = allPayments.filter(function (p) { return p.due === dateStr; });
+var hasGreen = dayPayments.some(function (p) { return p.status === “platit”; });
+var hasRed = dayPayments.some(function (p) { return p.status === “neplatit”; });
+var hasOrange = dayPayments.some(function (p) { return p.status === “partial”; });
+var bgColor = “rgba(255,255,255,0.03)”;
+if (hasRed) bgColor = “rgba(255,23,68,0.1)”;
+else if (hasOrange) bgColor = “rgba(255,145,0,0.1)”;
+else if (hasGreen) bgColor = “rgba(0,230,118,0.08)”;
+var dotColor = hasRed ? “#FF1744” : hasOrange ? “#FF9100” : hasGreen ? “#00E676” : “transparent”;
+days.push(
+<div key={d} style={{ padding: “8px 4px”, borderRadius: 10, background: bgColor, textAlign: “center”, minHeight: 44, position: “relative” }}>
+<div style={{ fontSize: 13, fontWeight: d === 8 ? 800 : 500, color: d === 8 ? “#FFD700” : “#E8E8EC” }}>{d}</div>
+{dayPayments.length > 0 ? <div style={{ width: 6, height: 6, borderRadius: 3, background: dotColor, margin: “2px auto 0” }} /> : null}
+{dayPayments.length > 0 ? <div style={{ fontSize: 8, color: “#888”, marginTop: 1 }}>{dayPayments.length}x</div> : null}
+</div>
+);
+}
+return (
+<div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={mg({ fontSize: 20 }, G)}>Aprilie 2026</div><div style={{ fontSize: 11, color: “#888”, marginTop: 4 }}>🟢 Plătit 🔴 Neplătit 🟠 Parțial</div></div>
+<div style={{ display: “grid”, gridTemplateColumns: “repeat(7,1fr)”, gap: 4, marginBottom: 8 }}>
+{[“Lu”,“Ma”,“Mi”,“Jo”,“Vi”,“Sâ”,“Du”].map(function (z) { return <div key={z} style={{ textAlign: “center”, fontSize: 10, color: “#666”, fontWeight: 700, padding: 4 }}>{z}</div>; })}
+</div>
+<div style={{ display: “grid”, gridTemplateColumns: “repeat(7,1fr)”, gap: 4, marginBottom: 20 }}>
+<div /><div />{days}
+</div>
+<div style={SEC}><IcoClock /> Plăți luna asta</div>
+{expenses.filter(function (e) { return e.status !== “platit”; }).map(function (e) {
+return <div key={e.id} style={mg(CRD, { padding: 12, display: “flex”, alignItems: “center”, gap: 10, marginBottom: 6 })}>
+<div style={{ width: 8, height: 8, borderRadius: 4, background: e.status === “neplatit” ? “#FF1744” : “#FF9100”, flexShrink: 0 }} />
+<div style={{ flex: 1, fontSize: 13 }}>{e.title}</div>
+<div style={{ fontSize: 10, color: “#888” }}>{e.due}</div>
+<div style={{ fontSize: 14, fontWeight: 700, color: “#FF1744” }}>{e.amount}€</div>
+</div>;
+})}
+</div>
+);
+}
+
+// ===== PAGE: BUGET =====
+function renderBuget() {
+return (
+<div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={LBL}>BUGET APRILIE 2026</div><div style={mg({ fontSize: 20 }, G)}>Urmărește cheltuielile pe categorii</div></div>
+{budgets.map(function (b) {
+var pct = b.limit > 0 ? Math.round((b.spent / b.limit) * 100) : 0;
+var remaining = b.limit - b.spent;
+var barCol = pct >= 100 ? “#FF1744” : pct >= 75 ? “#FF9100” : “#00E676”;
+return <div key={b.id} style={mg(CRD, { padding: 16, marginBottom: 8 })}>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 6 }}>
+<span style={{ fontSize: 14, fontWeight: 600, color: CC[b.category] || “#E8E8EC” }}>{b.category}</span>
+<span style={{ fontSize: 14, fontWeight: 700, color: pct >= 100 ? “#FF1744” : “#E8E8EC” }}>{pct}%</span>
+</div>
+<div style={{ height: 10, borderRadius: 5, background: “rgba(255,255,255,0.06)”, marginBottom: 8 }}>
+<div style={{ height: 10, borderRadius: 5, background: barCol, width: Math.min(pct, 100) + “%” }} />
+</div>
+<div style={{ display: “flex”, justifyContent: “space-between” }}>
+<span style={{ fontSize: 11, color: “#888” }}>Cheltuit: <span style={{ color: “#E8E8EC”, fontWeight: 600 }}>{b.spent.toLocaleString()}€</span></span>
+<span style={{ fontSize: 11, color: “#888” }}>Buget: <span style={{ color: “#E8E8EC”, fontWeight: 600 }}>{b.limit}€</span></span>
+</div>
+<div style={{ fontSize: 11, color: remaining >= 0 ? “#00E676” : “#FF1744”, marginTop: 4, fontWeight: 600 }}>{remaining >= 0 ? “Disponibil: “ + remaining.toFixed(2) + “€” : “Depășit cu “ + Math.abs(remaining).toFixed(2) + “€!”}</div>
+</div>;
+})}
+</div>
+);
+}
+
+// ===== PAGE: OBIECTIVE =====
+function renderObiective() {
+return (
+<div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={mg({ fontSize: 20 }, G)}>Obiective Financiare</div></div>
+<button onClick={function () { setShowGoalForm(true); }} style={{ padding: “12px 20px”, borderRadius: 12, border: “none”, background: “linear-gradient(135deg,#E040FB,#AA00FF)”, color: “#fff”, fontWeight: 700, fontSize: 14, cursor: “pointer”, display: “inline-flex”, alignItems: “center”, gap: 8, fontFamily: “inherit”, marginBottom: 16 }}><IcoPlus /> Obiectiv Nou</button>
+{goals.map(function (g) {
+var pct = g.target > 0 ? Math.round((g.current / g.target) * 100) : 0;
+var isAtins = g.status === “atins” || pct >= 100;
+return <div key={g.id} style={mg(CRD, { padding: 16, marginBottom: 8, borderLeft: “4px solid “ + (isAtins ? “#00E676” : “#E040FB”) })}>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 4 }}>
+<div style={{ fontSize: 15, fontWeight: 700, color: isAtins ? “#888” : “#E8E8EC” }}>{g.title}</div>
+<span style={{ color: isAtins ? “#00E676” : “#E040FB”, background: (isAtins ? “#00E676” : “#E040FB”) + “18”, padding: “2px 10px”, borderRadius: 20, fontSize: 11, fontWeight: 600 }}>{isAtins ? “Atins!” : pct + “%”}</span>
+</div>
+<div style={{ height: 10, borderRadius: 5, background: “rgba(255,255,255,0.06)”, marginBottom: 8, marginTop: 8 }}>
+<div style={{ height: 10, borderRadius: 5, background: isAtins ? “#00E676” : “linear-gradient(90deg,#E040FB,#AA00FF)”, width: Math.min(pct, 100) + “%” }} />
+</div>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 6 }}>
+<span style={{ fontSize: 12, color: “#888” }}>{g.current.toLocaleString()}€ / {g.target.toLocaleString()}€</span>
+<span style={{ fontSize: 11, color: “#888” }}>Termen: {g.deadline}</span>
+</div>
+{!isAtins ? <button onClick={function () { var gid = g.id; addToGoal(gid, 50); }} style={{ width: “100%”, padding: 10, borderRadius: 10, border: “none”, background: “rgba(224,64,251,0.1)”, color: “#E040FB”, fontWeight: 700, fontSize: 12, cursor: “pointer”, fontFamily: “inherit” }}>+ Adaugă 50€</button> : null}
+</div>;
+})}
+{showGoalForm ? <div style={{ position: “fixed”, inset: 0, zIndex: 300, display: “flex”, alignItems: “flex-end”, justifyContent: “center” }}><div style={{ position: “absolute”, inset: 0, background: “rgba(0,0,0,0.7)” }} onClick={function () { setShowGoalForm(false); }} /><div style={{ position: “relative”, width: “100%”, maxWidth: 440, background: “#12121A”, borderRadius: “20px 20px 0 0”, padding: 20, zIndex: 1 }}>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>Obiectiv Nou</div><button onClick={function () { setShowGoalForm(false); }} style={{ background: “none”, border: “none”, color: “#666”, cursor: “pointer” }}><IcoX /></button></div>
+<div style={{ display: “flex”, flexDirection: “column”, gap: 12 }}>
+<div><label style={mg(LBL, { display: “block” })}>Titlu</label><input value={goalForm.title} onChange={function (e) { setGoalForm(mg(goalForm, { title: e.target.value })); }} style={INP} /></div>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10 }}>
+<div><label style={mg(LBL, { display: “block” })}>Sumă țintă €</label><input value={goalForm.target} onChange={function (e) { setGoalForm(mg(goalForm, { target: e.target.value })); }} type=“number” style={INP} /></div>
+<div><label style={mg(LBL, { display: “block” })}>Actual €</label><input value={goalForm.current} onChange={function (e) { setGoalForm(mg(goalForm, { current: e.target.value })); }} type=“number” style={INP} /></div>
+</div>
+<div><label style={mg(LBL, { display: “block” })}>Termen</label><input value={goalForm.deadline} onChange={function (e) { setGoalForm(mg(goalForm, { deadline: e.target.value })); }} type=“date” style={INP} /></div>
+<button onClick={saveGoal} style={{ width: “100%”, padding: 14, borderRadius: 12, border: “none”, background: “linear-gradient(135deg,#E040FB,#AA00FF)”, color: “#fff”, fontWeight: 700, cursor: “pointer”, fontFamily: “inherit” }}>Adaugă</button>
+</div>
+</div></div> : null}
+</div>
+);
+}
+
+// ===== PAGE: SITUATIA MEA =====
+function renderSituatie() {
+var venTotal = 0; var chTotal = 0;
+for (var i = 0; i < incomes.length; i++) { var d = new Date(incomes[i].date); if (d.getMonth() === 3) venTotal += incomes[i].amount; }
+for (var j = 0; j < expenses.length; j++) chTotal += expenses[j].amount;
+var neplExp = expenses.filter(function (e) { return e.status === “neplatit”; });
+var neplTax = taxes.filter(function (t) { return t.status !== “platit”; });
+var neplInv = invoices.filter(function (v) { return v.status !== “platit”; });
+var activeSubs = subs.filter(function (s) { return s.status !== “platit”; });
+var totalDat = 0; for (var k = 0; k < debts.length; k++) { if (debts[k].status !== “achitata”) totalDat += (debts[k].totalAmount - debts[k].paidAmount); }
+var rows = [
+{ l: “Încasat luna asta”, v: venTotal.toLocaleString() + “€”, c: “#00E676” },
+{ l: “Cheltuit luna asta”, v: chTotal.toLocaleString() + “€”, c: “#FF1744” },
+{ l: “Disponibil”, v: (venTotal - chTotal).toLocaleString() + “€”, c: “#FFD700” },
+{ l: “Cheltuieli neplătite”, v: neplExp.length + “ (” + neplExp.reduce(function (s, e) { return s + e.amount; }, 0).toLocaleString() + “€)”, c: “#FF1744” },
+{ l: “Taxe neplătite”, v: neplTax.length + “ (” + neplTax.reduce(function (s, t) { return s + t.amount; }, 0).toLocaleString() + “€)”, c: “#FFD600” },
+{ l: “Facturi neplătite”, v: neplInv.length + “ (” + neplInv.reduce(function (s, v) { return s + v.amount; }, 0).toLocaleString() + “€)”, c: “#448AFF” },
+{ l: “Abonamente de plătit”, v: activeSubs.length + “ (” + activeSubs.reduce(function (s, a) { return s + a.amount; }, 0).toFixed(2) + “€)”, c: “#AA00FF” },
+{ l: “Total datorii rămase”, v: totalDat.toLocaleString() + “€”, c: “#FF6D00” }
+];
+return (
+<div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={mg({ fontSize: 20 }, G)}>Situația Mea Financiară</div><div style={{ fontSize: 11, color: “#888”, marginTop: 4 }}>Aprilie 2026 - vedere completă</div></div>
+{rows.map(function (r, i) {
+return <div key={i} style={mg(CRD, { padding: 14, display: “flex”, justifyContent: “space-between”, alignItems: “center”, marginBottom: 6 })}>
+<span style={{ fontSize: 13, color: “#888” }}>{r.l}</span>
+<span style={{ fontSize: 16, fontWeight: 700, color: r.c }}>{r.v}</span>
+</div>;
+})}
+</div>
+);
+}
+
+// ===== PAGE: EXPORT =====
+function renderExport() {
+var exportMsg = useState(””)[0]; var setExportMsg = useState(””)[1];
+function doExport(label) {
+var data = “FinanțePro Export - “ + label + “\nGenerat: “ + new Date().toISOString().slice(0, 10) + “\n\n”;
+if (label.indexOf(“Venituri”) > -1) { for (var i = 0; i < incomes.length; i++) data += incomes[i].title + “ | “ + incomes[i].amount + “€ | “ + incomes[i].method + “ | “ + incomes[i].date + “\n”; }
+if (label.indexOf(“Cheltuieli”) > -1) { for (var j = 0; j < expenses.length; j++) data += expenses[j].title + “ | “ + expenses[j].amount + “€ | “ + expenses[j].status + “ | “ + expenses[j].date + “\n”; }
+if (label.indexOf(“Facturi”) > -1) { for (var k = 0; k < invoices.length; k++) data += invoices[k].title + “ | “ + invoices[k].amount + “€ | “ + invoices[k].status + “ | “ + invoices[k].supplier + “\n”; }
+if (label.indexOf(“Datorii”) > -1) { for (var l = 0; l < debts.length; l++) data += debts[l].title + “ | Total: “ + debts[l].totalAmount + “€ | Rămas: “ + (debts[l].totalAmount - debts[l].paidAmount) + “€\n”; }
+if (label.indexOf(“Taxe”) > -1) { for (var m = 0; m < taxes.length; m++) data += taxes[m].title + “ | “ + taxes[m].amount + “€ | “ + taxes[m].status + “\n”; }
+var blob = new Blob([data], { type: “text/csv” });
+var url = URL.createObjectURL(blob);
+var a = document.createElement(“a”);
+a.href = url; a.download = “export_” + label.replace(/\s/g, “_”) + “.csv”; a.click();
+}
+var buttons = [
+{ l: “Venituri Aprilie”, c: “#00E676” }, { l: “Cheltuieli Aprilie”, c: “#FF1744” },
+{ l: “Facturi Aprilie”, c: “#448AFF” }, { l: “Datorii”, c: “#FF6D00” },
+{ l: “Taxe Aprilie”, c: “#FFD600” }, { l: “Tot - Aprilie 2026”, c: “#E040FB” }
+];
+return (
+<div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={mg({ fontSize: 20 }, G)}>Export Date</div><div style={{ fontSize: 11, color: “#888”, marginTop: 4 }}>Descarcă rapoarte CSV</div></div>
+{buttons.map(function (b, i) {
+return <button key={i} onClick={function () { doExport(b.l); }} style={{ width: “100%”, padding: 14, borderRadius: 12, border: “1px solid “ + b.c + “30”, background: b.c + “08”, color: b.c, fontWeight: 700, fontSize: 14, cursor: “pointer”, fontFamily: “inherit”, marginBottom: 10, display: “flex”, alignItems: “center”, justifyContent: “center”, gap: 8 }}><IcoDl /> {b.l}</button>;
+})}
+</div>
+);
+}
+
+// ===== PAGE: FACTURI & DOCUMENTE =====
+function renderFacturi() {
+var filtered = invoices.filter(function (inv) {
+if (invFilter.status !== “toate” && inv.status !== invFilter.status) return false;
+if (invFilter.search && inv.title.toLowerCase().indexOf(invFilter.search.toLowerCase()) === -1 && inv.supplier.toLowerCase().indexOf(invFilter.search.toLowerCase()) === -1) return false;
+return true;
+});
+var totalInv = 0; var paidInv = 0; var unpaidInv = 0;
+for (var i = 0; i < invoices.length; i++) { totalInv += invoices[i].amount; if (invoices[i].status === “platit”) paidInv += invoices[i].amount; else unpaidInv += invoices[i].amount; }
+var ftColors = { PDF: “#FF1744”, JPG: “#FF9100”, PNG: “#448AFF”, IMG: “#AA00FF” };
+
+```
+return (
+  <div>
+    <div style={{ marginBottom: 28 }}>
+      <div style={mg(CRD, { background: "linear-gradient(135deg,rgba(68,138,255,0.08),rgba(68,138,255,0.02))", borderColor: "rgba(68,138,255,0.15)", textAlign: "center" })}>
+        <div style={LBL}>TOTAL FACTURI</div>
+        <div style={{ fontSize: 36, fontWeight: 700, color: "#448AFF" }}>{totalInv.toLocaleString()}€</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#00E676", fontWeight: 700 }}>PLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: "#00E676" }}>{paidInv.toLocaleString()}€</div></div>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#FF1744", fontWeight: 700 }}>NEPLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: "#FF1744" }}>{unpaidInv.toLocaleString()}€</div></div>
+      </div>
+    </div>
+
+    <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <button onClick={function () { setInvForm({ title: "", amount: "", category: "", supplier: "", date: "2026-04-08", due: "2026-04-08", status: "neplatit", method: "", fileType: "PDF" }); setEditInv(null); setShowInvForm(true); }} style={{ padding: "12px 16px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#448AFF,#2962FF)", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}><IcoPlus /> Adaugă Factură</button>
+      <button onClick={function () { setPage("chatbot"); }} style={{ padding: "12px 16px", borderRadius: 12, border: "1px solid rgba(224,64,251,0.3)", background: "rgba(224,64,251,0.08)", color: "#E040FB", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}><IcoChat /> Chatbot</button>
+    </div>
+
+    <div style={mg(CRD, { padding: 14, marginBottom: 16 })}>
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 8 }}>
+        <input value={invFilter.search} onChange={function (e) { setInvFilter(mg(invFilter, { search: e.target.value })); }} placeholder="Caută factură, furnizor..." style={INP} />
+        <select value={invFilter.status} onChange={function (e) { setInvFilter(mg(invFilter, { status: e.target.value })); }} style={INP}><option value="toate">Toate</option><option value="platit">Plătite</option><option value="neplatit">Neplătite</option></select>
+      </div>
+    </div>
+
+    <div style={SEC}><IcoFile /> Facturi ({filtered.length})</div>
+    {filtered.map(function (inv) {
+      var sc = inv.status === "platit" ? "#00E676" : "#FF1744";
+      var ftc = ftColors[inv.fileType] || "#888";
+      return (
+        <div key={inv.id} style={mg(CRD, { padding: 14, borderLeft: "4px solid " + sc, marginBottom: 8 })}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={function () { handleInvPayToggle(inv); }} style={{ width: 36, height: 36, borderRadius: 10, border: "none", background: inv.status === "platit" ? "rgba(0,230,118,0.2)" : "rgba(255,255,255,0.06)", color: inv.status === "platit" ? "#00E676" : "#555", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><IcoCheck /></button>
+            <div style={{ width: 36, height: 36, borderRadius: 8, background: ftc + "18", display: "flex", alignItems: "center", justifyContent: "center", color: ftc, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{inv.fileType}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: inv.status === "platit" ? "#888" : "#E8E8EC", textDecoration: inv.status === "platit" ? "line-through" : "none" }}>{inv.title}</div>
+              <div style={{ display: "flex", gap: 5, marginTop: 3, flexWrap: "wrap" }}>
+                <Badge s={inv.status} />
+                {inv.method ? <MBadge m={inv.method} /> : null}
+                {inv.category ? <span style={tg("#448AFF")}>{inv.category}</span> : null}
+              </div>
+              <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>{inv.supplier} • Scadență: {inv.due}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#448AFF" }}>{inv.amount.toLocaleString()}€</div>
+              <div style={{ display: "flex", gap: 4, marginTop: 4, justifyContent: "flex-end" }}>
+                <button onClick={function () { var v = inv; setInvForm(mg(v, { amount: String(v.amount) })); setEditInv(v); setShowInvForm(true); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,255,255,0.06)", color: "#888", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoEdit /></button>
+                <button onClick={function () { var vid = inv.id; setDelConfirm(vid); setDelType("inv"); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,23,68,0.08)", color: "#FF1744", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoTrash /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+
+    {invPayPopup !== null ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setInvPayPopup(null); }} /><div style={{ position: "relative", width: "85%", maxWidth: 320, background: "#12121A", borderRadius: 20, padding: 24, textAlign: "center", zIndex: 1 }}><div style={{ fontSize: 24, marginBottom: 12 }}>📄</div><div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Cum ai plătit factura?</div><div style={{ display: "flex", gap: 10 }}><button onClick={function () { markInvPaid(invPayPopup, "card"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #448AFF", background: "rgba(68,138,255,0.12)", color: "#448AFF", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Card</button><button onClick={function () { markInvPaid(invPayPopup, "cash"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #00E676", background: "rgba(0,230,118,0.12)", color: "#00E676", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cash</button></div></div></div> : null}
+
+    {showInvForm ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setShowInvForm(false); setEditInv(null); }} /><div style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "90vh", background: "#12121A", borderRadius: "20px 20px 0 0", padding: 20, overflowY: "auto", zIndex: 1 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>{editInv ? "Editează" : "Adaugă Factură"}</div><button onClick={function () { setShowInvForm(false); setEditInv(null); }} style={{ background: "none", border: "none", color: "#666", cursor: "pointer" }}><IcoX /></button></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div><label style={mg(LBL, { display: "block" })}>Titlu *</label><input value={invForm.title} onChange={function (e) { setInvForm(mg(invForm, { title: e.target.value })); }} style={INP} /></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Sumă €</label><input value={invForm.amount} onChange={function (e) { setInvForm(mg(invForm, { amount: e.target.value })); }} type="number" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Furnizor</label><input value={invForm.supplier} onChange={function (e) { setInvForm(mg(invForm, { supplier: e.target.value })); }} style={INP} /></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Categorie</label><input value={invForm.category} onChange={function (e) { setInvForm(mg(invForm, { category: e.target.value })); }} placeholder="Electricitate, Telefon..." style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Tip fișier</label><select value={invForm.fileType} onChange={function (e) { setInvForm(mg(invForm, { fileType: e.target.value })); }} style={INP}><option value="PDF">PDF</option><option value="JPG">JPG</option><option value="PNG">PNG</option><option value="IMG">Captură</option></select></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Dată</label><input value={invForm.date} onChange={function (e) { setInvForm(mg(invForm, { date: e.target.value })); }} type="date" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Scadență</label><input value={invForm.due} onChange={function (e) { setInvForm(mg(invForm, { due: e.target.value })); }} type="date" style={INP} /></div>
+        </div>
+        <div><label style={mg(LBL, { display: "block" })}>Status</label><select value={invForm.status} onChange={function (e) { setInvForm(mg(invForm, { status: e.target.value })); }} style={INP}><option value="neplatit">Neplătit</option><option value="platit">Plătit</option></select></div>
+        {invForm.status === "platit" ? <div><label style={mg(LBL, { display: "block" })}>Metodă plată</label><div style={{ display: "flex", gap: 8 }}><button onClick={function () { setInvForm(mg(invForm, { method: "card" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: invForm.method === "card" ? "2px solid #448AFF" : "1px solid rgba(255,255,255,0.1)", color: invForm.method === "card" ? "#448AFF" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", background: invForm.method === "card" ? "rgba(68,138,255,0.12)" : "transparent" }}>Card</button><button onClick={function () { setInvForm(mg(invForm, { method: "cash" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: invForm.method === "cash" ? "2px solid #00E676" : "1px solid rgba(255,255,255,0.1)", color: invForm.method === "cash" ? "#00E676" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", background: invForm.method === "cash" ? "rgba(0,230,118,0.12)" : "transparent" }}>Cash</button></div></div> : null}
+        <button onClick={saveInv} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: (invForm.status === "platit" && !invForm.method) ? "#333" : "linear-gradient(135deg,#448AFF,#2962FF)", color: "#fff", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", opacity: (invForm.status === "platit" && !invForm.method) ? 0.5 : 1 }}>{editInv ? "Salvează" : "Adaugă"}</button>
+      </div>
+    </div></div> : null}
+  </div>
+);
+```
+
+}
+
+// ===== PAGE: CHATBOT INTELIGENT =====
+function renderChatbot() {
+return (
+<div>
+<div style={mg(CRD, { background: “linear-gradient(135deg,rgba(224,64,251,0.08),rgba(170,0,255,0.02))”, borderColor: “rgba(224,64,251,0.15)”, textAlign: “center”, marginBottom: 20 })}>
+<div style={{ fontSize: 32, marginBottom: 8 }}>🤖</div>
+<div style={mg({ fontSize: 18 }, G)}>Chatbot Inteligent</div>
+<div style={{ fontSize: 12, color: “#888”, marginTop: 6 }}>Trimite o poză, screenshot sau PDF și eu detectez automat datele.</div>
+<div style={{ fontSize: 11, color: “#E040FB”, marginTop: 4 }}>Adaug automat la Facturi + Cheltuieli</div>
+</div>
+
+```
+    <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+      <button onClick={function () { simulateChatDetection("poză factură"); }} disabled={chatProcessing} style={{ flex: 1, padding: "14px 10px", borderRadius: 12, border: "1px solid rgba(255,145,0,0.3)", background: "rgba(255,145,0,0.08)", color: "#FF9100", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>📸 Poză</button>
+      <button onClick={function () { simulateChatDetection("captură de ecran"); }} disabled={chatProcessing} style={{ flex: 1, padding: "14px 10px", borderRadius: 12, border: "1px solid rgba(68,138,255,0.3)", background: "rgba(68,138,255,0.08)", color: "#448AFF", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>📱 Screenshot</button>
+      <button onClick={function () { simulateChatDetection("PDF"); }} disabled={chatProcessing} style={{ flex: 1, padding: "14px 10px", borderRadius: 12, border: "1px solid rgba(255,23,68,0.3)", background: "rgba(255,23,68,0.08)", color: "#FF1744", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>📄 PDF</button>
+    </div>
+
+    {chatProcessing ? <div style={mg(CRD, { textAlign: "center", padding: 30 })}><div style={{ fontSize: 24, marginBottom: 8 }}>🔄</div><div style={{ color: "#E040FB", fontWeight: 600 }}>Analizez documentul...</div></div> : null}
+
+    <div style={{ marginBottom: 16 }}>
+      {chatMessages.map(function (msg, i) {
+        var isBot = msg.from === "bot";
+        return (
+          <div key={i} style={{ display: "flex", justifyContent: isBot ? "flex-start" : "flex-end", marginBottom: 8 }}>
+            <div style={{ maxWidth: "85%", padding: "10px 14px", borderRadius: isBot ? "16px 16px 16px 4px" : "16px 16px 4px 16px", background: isBot ? "rgba(224,64,251,0.1)" : "rgba(68,138,255,0.1)", border: "1px solid " + (isBot ? "rgba(224,64,251,0.2)" : "rgba(68,138,255,0.2)"), color: "#E8E8EC", fontSize: 13, whiteSpace: "pre-line", lineHeight: 1.5 }}>
+              {msg.text}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {chatDetected ? (
+      <div style={mg(CRD, { padding: 16, border: "1px solid rgba(0,230,118,0.2)", background: "rgba(0,230,118,0.03)" })}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#00E676", marginBottom: 12 }}>Confirmă și selectează status:</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+          <div style={{ padding: "8px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}><div style={{ fontSize: 9, color: "#666" }}>TITLU</div><div style={{ fontSize: 13, fontWeight: 600 }}>{chatDetected.title}</div></div>
+          <div style={{ padding: "8px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}><div style={{ fontSize: 9, color: "#666" }}>SUMĂ</div><div style={{ fontSize: 13, fontWeight: 700, color: "#FFD600" }}>{chatDetected.amount}€</div></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+          <div style={{ padding: "8px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}><div style={{ fontSize: 9, color: "#666" }}>FURNIZOR</div><div style={{ fontSize: 12 }}>{chatDetected.supplier}</div></div>
+          <div style={{ padding: "8px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}><div style={{ fontSize: 9, color: "#666" }}>CATEGORIE</div><div style={{ fontSize: 12 }}>{chatDetected.category}</div></div>
+        </div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#888", marginBottom: 8 }}>Status plată:</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <button onClick={function () { confirmChatEntry("neplatit", ""); }} style={{ padding: 12, borderRadius: 10, border: "1px solid rgba(255,23,68,0.3)", background: "rgba(255,23,68,0.08)", color: "#FF1744", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>🔴 Neplătit - adaugă și urmăresc</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={function () { confirmChatEntry("platit", "card"); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: "1px solid rgba(68,138,255,0.3)", background: "rgba(68,138,255,0.08)", color: "#448AFF", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>💳 Plătit Card</button>
+            <button onClick={function () { confirmChatEntry("platit", "cash"); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: "1px solid rgba(0,230,118,0.3)", background: "rgba(0,230,118,0.08)", color: "#00E676", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>💵 Plătit Cash</button>
+          </div>
+        </div>
+      </div>
+    ) : null}
+
+    {chatMessages.length === 0 && !chatProcessing ? (
+      <div style={mg(CRD, { textAlign: "center", padding: 30, color: "#555" })}>
+        <div style={{ fontSize: 40, marginBottom: 12 }}>📷</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#888" }}>Trimite prima ta factură</div>
+        <div style={{ fontSize: 12, marginTop: 4 }}>Apasă pe Poză, Screenshot sau PDF</div>
+      </div>
+    ) : null}
+  </div>
+);
+```
+
+}
+
+// ===== PAGE: TAXE & IMPOZITE =====
+function renderTaxe() {
+var totalTaxe = 0; var platite = 0; var neplatite = 0;
+for (var i = 0; i < taxes.length; i++) {
+totalTaxe += taxes[i].amount;
+if (taxes[i].status === “platit”) platite += taxes[i].amount;
+else neplatite += taxes[i].amount;
+}
+
+```
+return (
+  <div>
+    <div style={{ marginBottom: 28 }}>
+      <div style={mg(CRD, { background: "linear-gradient(135deg,rgba(255,214,0,0.08),rgba(255,160,0,0.02))", borderColor: "rgba(255,214,0,0.15)", textAlign: "center" })}>
+        <div style={LBL}>TOTAL TAXE & IMPOZITE</div>
+        <div style={{ fontSize: 36, fontWeight: 700, color: "#FFD600" }}>{totalTaxe.toLocaleString()}€</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#00E676", fontWeight: 700 }}>PLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: "#00E676" }}>{platite.toLocaleString()}€</div></div>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#FF1744", fontWeight: 700 }}>NEPLĂTITE</div><div style={{ fontSize: 22, fontWeight: 700, color: "#FF1744" }}>{neplatite.toLocaleString()}€</div></div>
+      </div>
+    </div>
+
+    <button onClick={function () { setTaxForm({ title: "", amount: "", frequency: "lunar", due: "2026-04-08", status: "neplatit", method: "", notes: "" }); setEditTax(null); setShowTaxForm(true); }} style={{ padding: "12px 20px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#FFD600,#FFA000)", color: "#000", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 16 }}><IcoPlus /> Adaugă Taxă / Impozit</button>
+
+    <div style={SEC}><IcoDollar /> Lista ({taxes.length})</div>
+    {taxes.map(function (tax) {
+      var sc = tax.status === "platit" ? "#00E676" : "#FF1744";
+      var isOverdue = tax.status !== "platit" && new Date(tax.due) < new Date("2026-04-08");
+      var isClose = tax.status !== "platit" && !isOverdue && (new Date(tax.due) - new Date("2026-04-08")) / 864e5 <= 7;
+
+      return (
+        <div key={tax.id} style={mg(CRD, { padding: 14, borderLeft: "4px solid " + (isOverdue ? "#FF1744" : isClose ? "#FFD600" : sc), marginBottom: 8 })}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={function () { handleTaxPayToggle(tax); }} style={{ width: 36, height: 36, borderRadius: 10, border: "none", background: tax.status === "platit" ? "rgba(0,230,118,0.2)" : "rgba(255,255,255,0.06)", color: tax.status === "platit" ? "#00E676" : "#555", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><IcoCheck /></button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: tax.status === "platit" ? "#888" : "#E8E8EC", textDecoration: tax.status === "platit" ? "line-through" : "none" }}>{tax.title}</div>
+              <div style={{ display: "flex", gap: 5, marginTop: 3, flexWrap: "wrap" }}>
+                <Badge s={tax.status} />
+                {tax.method ? <MBadge m={tax.method} /> : null}
+                <span style={{ fontSize: 10, color: "#AA00FF", background: "rgba(170,0,255,0.1)", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>{tax.frequency}</span>
+                {isOverdue ? <span style={{ fontSize: 10, color: "#FF1744", fontWeight: 700 }}>RESTANT</span> : null}
+                {isClose ? <span style={{ fontSize: 10, color: "#FFD600", fontWeight: 700 }}>CURÂND</span> : null}
+              </div>
+              <div style={{ fontSize: 10, color: isOverdue ? "#FF8A80" : "#555", marginTop: 2 }}>Scadență: {tax.due}</div>
+              {tax.notes ? <div style={{ fontSize: 10, color: "#666", marginTop: 1 }}>{tax.notes}</div> : null}
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#FFD600" }}>{tax.amount.toLocaleString()}€</div>
+              <div style={{ display: "flex", gap: 4, marginTop: 6, justifyContent: "flex-end" }}>
+                <button onClick={function () { var t = tax; setTaxForm({ title: t.title, amount: String(t.amount), frequency: t.frequency, due: t.due, status: t.status, method: t.method, notes: t.notes }); setEditTax(t); setShowTaxForm(true); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,255,255,0.06)", color: "#888", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoEdit /></button>
+                <button onClick={function () { var tid = tax.id; setDelConfirm(tid); setDelType("tax"); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,23,68,0.08)", color: "#FF1744", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoTrash /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+
+    {taxPayPopup !== null ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setTaxPayPopup(null); }} /><div style={{ position: "relative", width: "85%", maxWidth: 320, background: "#12121A", borderRadius: 20, border: "1px solid rgba(255,214,0,0.2)", padding: 24, textAlign: "center", zIndex: 1 }}><div style={{ fontSize: 24, marginBottom: 12 }}>🏛️</div><div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Cum ai plătit taxa?</div><div style={{ display: "flex", gap: 10 }}><button onClick={function () { markTaxPaid(taxPayPopup, "card"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #448AFF", background: "rgba(68,138,255,0.12)", color: "#448AFF", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Card</button><button onClick={function () { markTaxPaid(taxPayPopup, "cash"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #00E676", background: "rgba(0,230,118,0.12)", color: "#00E676", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cash</button></div></div></div> : null}
+
+    {showTaxForm ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setShowTaxForm(false); setEditTax(null); }} /><div style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "90vh", background: "#12121A", borderRadius: "20px 20px 0 0", padding: 20, overflowY: "auto", zIndex: 1 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>{editTax ? "Editează" : "Adaugă Taxă"}</div><button onClick={function () { setShowTaxForm(false); setEditTax(null); }} style={{ background: "none", border: "none", color: "#666", cursor: "pointer" }}><IcoX /></button></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div><label style={mg(LBL, { display: "block" })}>Nume taxă *</label><input value={taxForm.title} onChange={function (e) { setTaxForm(mg(taxForm, { title: e.target.value })); }} placeholder="ex: Impozit locuință" style={INP} /></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Sumă (€) *</label><input value={taxForm.amount} onChange={function (e) { setTaxForm(mg(taxForm, { amount: e.target.value })); }} type="number" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Frecvență</label><select value={taxForm.frequency} onChange={function (e) { setTaxForm(mg(taxForm, { frequency: e.target.value })); }} style={INP}><option value="lunar">Lunar</option><option value="trimestrial">Trimestrial</option><option value="anual">Anual</option></select></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Scadență</label><input value={taxForm.due} onChange={function (e) { setTaxForm(mg(taxForm, { due: e.target.value })); }} type="date" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Status</label><select value={taxForm.status} onChange={function (e) { setTaxForm(mg(taxForm, { status: e.target.value })); }} style={INP}><option value="neplatit">Neplătit</option><option value="platit">Plătit</option></select></div>
+        </div>
+        {taxForm.status === "platit" ? <div><label style={mg(LBL, { display: "block" })}>Metodă plată (obligatoriu)</label><div style={{ display: "flex", gap: 8 }}><button onClick={function () { setTaxForm(mg(taxForm, { method: "card" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: taxForm.method === "card" ? "2px solid #448AFF" : "1px solid rgba(255,255,255,0.1)", color: taxForm.method === "card" ? "#448AFF" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", background: taxForm.method === "card" ? "rgba(68,138,255,0.12)" : "transparent" }}>Card</button><button onClick={function () { setTaxForm(mg(taxForm, { method: "cash" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: taxForm.method === "cash" ? "2px solid #00E676" : "1px solid rgba(255,255,255,0.1)", color: taxForm.method === "cash" ? "#00E676" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", background: taxForm.method === "cash" ? "rgba(0,230,118,0.12)" : "transparent" }}>Cash</button></div></div> : null}
+        <div><label style={mg(LBL, { display: "block" })}>Observații</label><input value={taxForm.notes} onChange={function (e) { setTaxForm(mg(taxForm, { notes: e.target.value })); }} placeholder="Opțional" style={INP} /></div>
+        <button onClick={saveTax} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: (taxForm.status === "platit" && !taxForm.method) ? "#333" : "linear-gradient(135deg,#FFD600,#FFA000)", color: "#000", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", opacity: (taxForm.status === "platit" && !taxForm.method) ? 0.5 : 1 }}>{editTax ? "Salvează" : "Adaugă"}</button>
+      </div>
+    </div></div> : null}
+  </div>
+);
+```
+
+}
+
+// ===== PAGE: CHELTUIELI =====
+function renderCheltuieli() {
+var catEntries = [];
+var bk = Object.keys(expSt.byCat);
+for (var i = 0; i < bk.length; i++) catEntries.push([bk[i], expSt.byCat[bk[i]]]);
+catEntries.sort(function (a, b) { return b[1] - a[1]; });
+
+```
+return (
+  <div>
+    <div style={{ marginBottom: 28 }}>
+      <div style={mg(CRD, { background: "linear-gradient(135deg,rgba(255,23,68,0.08),rgba(213,0,0,0.02))", borderColor: "rgba(255,23,68,0.15)", textAlign: "center" })}>
+        <div style={LBL}>TOTAL CHELTUIELI</div>
+        <div style={{ fontSize: 36, fontWeight: 700, color: "#FF1744" }}>{expSt.total.toLocaleString()}€</div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#00E676", fontWeight: 700 }}>PLĂTIT</div><div style={{ fontSize: 22, fontWeight: 700, color: "#00E676" }}>{expSt.platit.toLocaleString()}€</div></div>
+        <div style={mg(CRD, { padding: 14, textAlign: "center" })}><div style={{ fontSize: 10, color: "#FF1744", fontWeight: 700 }}>NEPLĂTIT</div><div style={{ fontSize: 22, fontWeight: 700, color: "#FF1744" }}>{expSt.neplatit.toLocaleString()}€</div></div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={mg(CRD, { padding: 12, textAlign: "center" })}><div style={{ fontSize: 9, color: "#448AFF", fontWeight: 700 }}>CARD</div><div style={{ fontSize: 18, fontWeight: 700, color: "#448AFF" }}>{expSt.totalCard.toLocaleString()}€</div></div>
+        <div style={mg(CRD, { padding: 12, textAlign: "center" })}><div style={{ fontSize: 9, color: "#00E676", fontWeight: 700 }}>CASH</div><div style={{ fontSize: 18, fontWeight: 700, color: "#00E676" }}>{expSt.totalCash.toLocaleString()}€</div></div>
+      </div>
+    </div>
+
+    {catEntries.length > 0 && <div style={{ marginBottom: 20 }}><div style={SEC}><IcoPie /> Top Categorii</div><div style={CRD}>{catEntries.slice(0, 6).map(function (entry, i) { var pct = expSt.total > 0 ? (entry[1] / expSt.total * 100) : 0; return <div key={i} style={{ marginBottom: 8 }}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}><span style={{ fontSize: 12, color: CC[entry[0]] || "#888", fontWeight: 600 }}>{entry[0]}</span><span style={{ fontSize: 12, fontWeight: 700 }}>{entry[1].toLocaleString()}€</span></div><div style={{ height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)" }}><div style={{ height: 6, borderRadius: 3, background: CC[entry[0]] || "#666", width: pct + "%" }} /></div></div>; })}</div></div>}
+
+    <button onClick={function () { setExpForm({ title: "", amount: "", category: "Mâncare", date: "2026-04-08", due: "2026-04-08", status: "neplatit", method: "", recurring: "nu" }); setEditExp(null); setShowExpForm(true); }} style={{ padding: "12px 20px", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#FF1744,#D50000)", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit", marginBottom: 16 }}><IcoPlus /> Adaugă Cheltuială</button>
+
+    <div style={mg(CRD, { padding: 14, marginBottom: 16 })}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+        <select value={expFilter.category} onChange={function (e) { setExpFilter(mg(expFilter, { category: e.target.value })); }} style={INP}><option value="toate">Categorii</option>{CATS.map(function (c) { return <option key={c} value={c}>{c}</option>; })}</select>
+        <select value={expFilter.status} onChange={function (e) { setExpFilter(mg(expFilter, { status: e.target.value })); }} style={INP}><option value="toate">Status</option><option value="platit">Plătit</option><option value="neplatit">Neplătit</option><option value="partial">Parțial</option><option value="programat">Programat</option></select>
+      </div>
+      <input value={expFilter.search} onChange={function (e) { setExpFilter(mg(expFilter, { search: e.target.value })); }} placeholder="Caută..." style={INP} />
+    </div>
+
+    <div style={SEC}><IcoDown /> Lista ({filtExp.length})</div>
+    {filtExp.map(function (exp) {
+      var sc = exp.status === "platit" ? "#00E676" : exp.status === "neplatit" ? "#FF1744" : exp.status === "partial" ? "#FF9100" : "#448AFF";
+      return (
+        <div key={exp.id} style={mg(CRD, { padding: 14, borderLeft: "4px solid " + sc, marginBottom: 8 })}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={function () { handlePayToggle(exp); }} style={{ width: 36, height: 36, borderRadius: 10, border: "none", background: exp.status === "platit" ? "rgba(0,230,118,0.2)" : "rgba(255,255,255,0.06)", color: exp.status === "platit" ? "#00E676" : "#555", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><IcoCheck /></button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: exp.status === "platit" ? "#888" : "#E8E8EC", textDecoration: exp.status === "platit" ? "line-through" : "none" }}>{exp.title}</div>
+              <div style={{ display: "flex", gap: 5, marginTop: 3, flexWrap: "wrap" }}>
+                <span style={tg(CC[exp.category] || "#666")}>{exp.category}</span>
+                <Badge s={exp.status} />
+                {exp.method ? <MBadge m={exp.method} /> : null}
+              </div>
+              {exp.due ? <div style={{ fontSize: 10, color: "#555", marginTop: 2 }}>Scadență: {exp.due}</div> : null}
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#FF1744" }}>{exp.amount.toLocaleString()}€</div>
+              <div style={{ display: "flex", gap: 4, marginTop: 4, justifyContent: "flex-end" }}>
+                <button onClick={function () { setExpForm(mg(exp, { amount: String(exp.amount) })); setEditExp(exp); setShowExpForm(true); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,255,255,0.06)", color: "#888", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoEdit /></button>
+                <button onClick={function () { setDelConfirm(exp.id); setDelType("exp"); }} style={{ width: 28, height: 28, borderRadius: 6, border: "none", background: "rgba(255,23,68,0.08)", color: "#FF1744", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><IcoTrash /></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+
+    {payPopup !== null ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setPayPopup(null); }} /><div style={{ position: "relative", width: "85%", maxWidth: 320, background: "#12121A", borderRadius: 20, border: "1px solid rgba(0,230,118,0.2)", padding: 24, textAlign: "center", zIndex: 1 }}><div style={{ fontSize: 24, marginBottom: 12 }}>💳</div><div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Cum ai plătit?</div><div style={{ display: "flex", gap: 10 }}><button onClick={function () { markPaid(payPopup, "card"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #448AFF", background: "rgba(68,138,255,0.12)", color: "#448AFF", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Card</button><button onClick={function () { markPaid(payPopup, "cash"); }} style={{ flex: 1, padding: 14, borderRadius: 12, border: "2px solid #00E676", background: "rgba(0,230,118,0.12)", color: "#00E676", fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>Cash</button></div></div></div> : null}
+
+    {showExpForm ? <div style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setShowExpForm(false); }} /><div style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "90vh", background: "#12121A", borderRadius: "20px 20px 0 0", padding: 20, overflowY: "auto", zIndex: 1 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>{editExp ? "Editează" : "Adaugă Cheltuială"}</div><button onClick={function () { setShowExpForm(false); }} style={{ background: "none", border: "none", color: "#666", cursor: "pointer" }}><IcoX /></button></div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div><label style={mg(LBL, { display: "block" })}>Titlu *</label><input value={expForm.title} onChange={function (e) { setExpForm(mg(expForm, { title: e.target.value })); }} style={INP} /></div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Sumă €</label><input value={expForm.amount} onChange={function (e) { setExpForm(mg(expForm, { amount: e.target.value })); }} type="number" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Categorie</label><select value={expForm.category} onChange={function (e) { setExpForm(mg(expForm, { category: e.target.value })); }} style={INP}>{CATS.map(function (c) { return <option key={c} value={c}>{c}</option>; })}</select></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Dată</label><input value={expForm.date} onChange={function (e) { setExpForm(mg(expForm, { date: e.target.value })); }} type="date" style={INP} /></div>
+          <div><label style={mg(LBL, { display: "block" })}>Scadență</label><input value={expForm.due} onChange={function (e) { setExpForm(mg(expForm, { due: e.target.value })); }} type="date" style={INP} /></div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div><label style={mg(LBL, { display: "block" })}>Status</label><select value={expForm.status} onChange={function (e) { setExpForm(mg(expForm, { status: e.target.value })); }} style={INP}><option value="neplatit">Neplătit</option><option value="platit">Plătit</option><option value="partial">Parțial</option><option value="programat">Programat</option></select></div>
+          <div><label style={mg(LBL, { display: "block" })}>Recurent</label><select value={expForm.recurring} onChange={function (e) { setExpForm(mg(expForm, { recurring: e.target.value })); }} style={INP}><option value="nu">Nu</option><option value="lunar">Lunar</option><option value="anual">Anual</option></select></div>
+        </div>
+        {expForm.status === "platit" ? <div><label style={mg(LBL, { display: "block" })}>Metodă plată (obligatoriu)</label><div style={{ display: "flex", gap: 8 }}><button onClick={function () { setExpForm(mg(expForm, { method: "card" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: expForm.method === "card" ? "2px solid #448AFF" : "1px solid rgba(255,255,255,0.1)", background: expForm.method === "card" ? "rgba(68,138,255,0.12)" : "rgba(255,255,255,0.04)", color: expForm.method === "card" ? "#448AFF" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Card</button><button onClick={function () { setExpForm(mg(expForm, { method: "cash" })); }} style={{ flex: 1, padding: 12, borderRadius: 10, border: expForm.method === "cash" ? "2px solid #00E676" : "1px solid rgba(255,255,255,0.1)", background: expForm.method === "cash" ? "rgba(0,230,118,0.12)" : "rgba(255,255,255,0.04)", color: expForm.method === "cash" ? "#00E676" : "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Cash</button></div></div> : null}
+        <button onClick={saveExp} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: (expForm.status === "platit" && !expForm.method) ? "#333" : "linear-gradient(135deg,#FF1744,#D50000)", color: "#fff", fontWeight: 700, cursor: "pointer", fontFamily: "inherit", opacity: (expForm.status === "platit" && !expForm.method) ? 0.5 : 1 }}>{editExp ? "Salvează" : "Adaugă"}</button>
+      </div>
+    </div></div> : null}
+  </div>
+);
+```
+
+}
+
+// ===== PAGE: VENITURI =====
+function renderVenituri() {
+return (
+<div>
+<div style={mg(CRD, { background: “linear-gradient(135deg,rgba(0,230,118,0.08),rgba(0,200,83,0.02))”, borderColor: “rgba(0,230,118,0.15)”, textAlign: “center”, marginBottom: 12 })}><div style={LBL}>TOTAL VENITURI</div><div style={{ fontSize: 36, fontWeight: 700, color: “#00E676” }}>{incSt.total.toLocaleString()}€</div></div>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10, marginBottom: 16 }}>
+<div style={mg(CRD, { padding: 14, textAlign: “center” })}><div style={{ fontSize: 9, color: “#448AFF”, fontWeight: 700 }}>CARD</div><div style={{ fontSize: 22, fontWeight: 700, color: “#448AFF” }}>{incSt.totalCard.toLocaleString()}€</div></div>
+<div style={mg(CRD, { padding: 14, textAlign: “center” })}><div style={{ fontSize: 9, color: “#00E676”, fontWeight: 700 }}>CASH</div><div style={{ fontSize: 22, fontWeight: 700, color: “#00E676” }}>{incSt.totalCash.toLocaleString()}€</div></div>
+</div>
+<button onClick={function () { setIncForm({ title: “”, amount: “”, method: “card”, type: “Salariu”, date: “2026-04-08”, recurring: “nu”, status: “confirmat” }); setEditInc(null); setShowIncForm(true); }} style={{ padding: “12px 20px”, borderRadius: 12, border: “none”, background: “linear-gradient(135deg,#00E676,#00C853)”, color: “#000”, fontWeight: 700, fontSize: 14, cursor: “pointer”, display: “inline-flex”, alignItems: “center”, gap: 8, fontFamily: “inherit”, marginBottom: 16 }}><IcoPlus /> Adaugă Venit</button>
+<div style={mg(CRD, { padding: 14, marginBottom: 16 })}>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 8, marginBottom: 8 }}>
+<select value={incFilter.month} onChange={function (e) { setIncFilter(mg(incFilter, { month: e.target.value })); }} style={INP}><option value="toate">Luna</option>{[“01”, “02”, “03”, “04”, “05”, “06”, “07”, “08”, “09”, “10”, “11”, “12”].map(function (m) { return <option key={m} value={m}>{MO[parseInt(m) - 1]}</option>; })}</select>
+<select value={incFilter.type} onChange={function (e) { setIncFilter(mg(incFilter, { type: e.target.value })); }} style={INP}><option value="toate">Tip</option>{INC_T.map(function (t) { return <option key={t} value={t}>{t}</option>; })}</select>
+</div>
+</div>
+<div style={SEC}><IcoUp /> Lista ({filtInc.length})</div>
+<div style={CRD}>{filtInc.map(function (inc, idx) {
+return <div key={inc.id} style={{ display: “flex”, alignItems: “center”, gap: 10, padding: “12px 0”, borderBottom: idx < filtInc.length - 1 ? “1px solid rgba(255,255,255,0.04)” : “none” }}>
+<div style={{ width: 40, height: 40, borderRadius: 12, background: inc.method === “card” ? “rgba(68,138,255,0.12)” : “rgba(0,230,118,0.12)”, display: “flex”, alignItems: “center”, justifyContent: “center”, color: inc.method === “card” ? “#448AFF” : “#00E676”, flexShrink: 0 }}>{inc.method === “card” ? <IcoCc /> : <IcoCash />}</div>
+<div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 600 }}>{inc.title}</div><div style={{ display: “flex”, gap: 5, marginTop: 3 }}><span style={tg(”#AA00FF”)}>{inc.type}</span><MBadge m={inc.method} /></div></div>
+<div style={{ textAlign: “right” }}><div style={{ fontSize: 18, fontWeight: 700, color: “#00E676” }}>+{inc.amount.toLocaleString()}€</div>
+<div style={{ display: “flex”, gap: 4, marginTop: 4, justifyContent: “flex-end” }}>
+<button onClick={function () { setIncForm(mg(inc, { amount: String(inc.amount) })); setEditInc(inc); setShowIncForm(true); }} style={{ width: 28, height: 28, borderRadius: 6, border: “none”, background: “rgba(255,255,255,0.06)”, color: “#888”, cursor: “pointer”, display: “flex”, alignItems: “center”, justifyContent: “center” }}><IcoEdit /></button>
+<button onClick={function () { setDelConfirm(inc.id); setDelType(“inc”); }} style={{ width: 28, height: 28, borderRadius: 6, border: “none”, background: “rgba(255,23,68,0.08)”, color: “#FF1744”, cursor: “pointer”, display: “flex”, alignItems: “center”, justifyContent: “center” }}><IcoTrash /></button>
+</div>
+</div>
+</div>;
+})}</div>
+{showIncForm ? <div style={{ position: “fixed”, inset: 0, zIndex: 300, display: “flex”, alignItems: “flex-end”, justifyContent: “center” }}><div style={{ position: “absolute”, inset: 0, background: “rgba(0,0,0,0.7)” }} onClick={function () { setShowIncForm(false); }} /><div style={{ position: “relative”, width: “100%”, maxWidth: 440, maxHeight: “90vh”, background: “#12121A”, borderRadius: “20px 20px 0 0”, padding: 20, overflowY: “auto”, zIndex: 1 }}>
+<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 16 }}><div style={mg({ fontSize: 16 }, G)}>{editInc ? “Editează” : “Adaugă Venit”}</div><button onClick={function () { setShowIncForm(false); }} style={{ background: “none”, border: “none”, color: “#666”, cursor: “pointer” }}><IcoX /></button></div>
+<div style={{ display: “flex”, flexDirection: “column”, gap: 12 }}>
+<div><label style={mg(LBL, { display: “block” })}>Titlu</label><input value={incForm.title} onChange={function (e) { setIncForm(mg(incForm, { title: e.target.value })); }} style={INP} /></div>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10 }}>
+<div><label style={mg(LBL, { display: “block” })}>Sumă €</label><input value={incForm.amount} onChange={function (e) { setIncForm(mg(incForm, { amount: e.target.value })); }} type=“number” style={INP} /></div>
+<div><label style={mg(LBL, { display: “block” })}>Metodă</label><div style={{ display: “flex”, gap: 6 }}>
+<button onClick={function () { setIncForm(mg(incForm, { method: “card” })); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: incForm.method === “card” ? “2px solid #448AFF” : “1px solid rgba(255,255,255,0.1)”, color: incForm.method === “card” ? “#448AFF” : “#888”, fontWeight: 600, fontSize: 12, cursor: “pointer”, fontFamily: “inherit”, background: incForm.method === “card” ? “rgba(68,138,255,0.12)” : “transparent” }}>Card</button>
+<button onClick={function () { setIncForm(mg(incForm, { method: “cash” })); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: incForm.method === “cash” ? “2px solid #00E676” : “1px solid rgba(255,255,255,0.1)”, color: incForm.method === “cash” ? “#00E676” : “#888”, fontWeight: 600, fontSize: 12, cursor: “pointer”, fontFamily: “inherit”, background: incForm.method === “cash” ? “rgba(0,230,118,0.12)” : “transparent” }}>Cash</button>
+</div></div>
+</div>
+<div><label style={mg(LBL, { display: “block” })}>Tip</label><select value={incForm.type} onChange={function (e) { setIncForm(mg(incForm, { type: e.target.value })); }} style={INP}>{INC_T.map(function (t) { return <option key={t} value={t}>{t}</option>; })}</select></div>
+<button onClick={saveInc} style={{ width: “100%”, padding: 14, borderRadius: 12, border: “none”, background: “linear-gradient(135deg,#00E676,#00C853)”, color: “#000”, fontWeight: 700, cursor: “pointer”, fontFamily: “inherit” }}>{editInc ? “Salvează” : “Adaugă”}</button>
+</div>
+</div></div> : null}
+</div>
+);
+}
+
+// ===== PAGE: DASHBOARD =====
+function renderDash() {
+return (
+<div>
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10, marginBottom: 10 }}>
+<div style={mg(CRD, { background: “linear-gradient(135deg,rgba(0,230,118,0.08),rgba(0,200,83,0.02))” })}><div style={LBL}>VENITURI</div><div style={{ fontSize: 28, fontWeight: 700, color: “#00E676” }}>{dS.ven.toLocaleString()}€</div></div>
+<div style={mg(CRD, { background: “linear-gradient(135deg,rgba(255,23,68,0.08),rgba(213,0,0,0.02))” })}><div style={LBL}>CHELTUIELI</div><div style={{ fontSize: 28, fontWeight: 700, color: “#FF1744” }}>{dS.ch.toLocaleString()}€</div></div>
+</div>
+<div style={mg(CRD, { textAlign: “center”, marginBottom: 20 })}><div style={LBL}>SOLD</div><div style={mg({ fontSize: 36 }, G)}>{dS.sold.toLocaleString()}€</div></div>
+
+```
+    <div style={SEC}><IcoAlert /> Rezumat</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
+      {[{ e: "🔴", n: dS.np, l: "Neplătite", c: "#FF1744" }, { e: "🟠", n: dS.pa, l: "Parțial", c: "#FF9100" }, { e: "🟢", n: dS.pl, l: "Plătite", c: "#00E676" }, { e: "🔵", n: dS.pr, l: "Programate", c: "#448AFF" }].map(function (x, i) {
+        return <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", background: x.c + "08", border: "1px solid " + x.c + "20", borderRadius: 12 }}><span style={{ fontSize: 20 }}>{x.e}</span><div><div style={{ fontWeight: 600, fontSize: 14, color: x.c }}>{x.n}</div><div style={{ fontSize: 10, color: "#888" }}>{x.l}</div></div></div>;
+      })}
+    </div>
+
+    <div style={SEC}><IcoFolder /> Secțiuni</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+      {[{ id: "venituri", l: "Venituri", C: IcoUp, c: "#00E676" }, { id: "cheltuieli", l: "Cheltuieli", C: IcoDown, c: "#FF1744" }, { id: "datorii", l: "Datorii", C: IcoCard, c: "#FF6D00" }, { id: "facturi", l: "Facturi", C: IcoFile, c: "#448AFF" }, { id: "taxe", l: "Taxe", C: IcoDollar, c: "#FFD600" }, { id: "abonamente", l: "Abonamente", C: IcoMoon, c: "#AA00FF" }, { id: "calendar", l: "Calendar", C: IcoCal, c: "#00B0FF" }, { id: "chatbot", l: "Chatbot", C: IcoChat, c: "#E040FB" }].map(function (nc, i) {
+        return <div key={i} onClick={function () { setPage(nc.id); }} style={mg(CRD, { padding: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 12 })}><div style={{ width: 40, height: 40, borderRadius: 12, background: nc.c + "15", display: "flex", alignItems: "center", justifyContent: "center", color: nc.c }}><nc.C /></div><div style={{ fontWeight: 600, fontSize: 13 }}>{nc.l}</div></div>;
+      })}
+    </div>
+
+    <div style={SEC}><IcoUp /> Grafice</div>
+    <div style={mg(CRD, { marginBottom: 12 })}><div style={{ fontSize: 12, fontWeight: 600, color: "#B0B0B8", marginBottom: 12 }}>Venituri vs Cheltuieli</div><MiniBar data={MONTHLY} /></div>
+    {dSegs.length > 0 ? <div style={CRD}><div style={{ fontSize: 12, fontWeight: 600, color: "#B0B0B8", marginBottom: 12 }}>Distribuție</div><div style={{ display: "flex", alignItems: "center", gap: 16 }}><Donut segs={dSegs} /><div style={{ flex: 1 }}>{dSegs.slice(0, 6).map(function (s, i) { return <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}><div style={{ width: 6, height: 6, borderRadius: 2, background: s.color }} /><span style={{ fontSize: 10, color: "#888", flex: 1 }}>{s.label}</span><span style={{ fontSize: 10, fontWeight: 600, color: "#ccc" }}>{s.value.toFixed(0)}€</span></div>; })}</div></div></div> : null}
+  </div>
+);
+```
+
+}
+
+// Placeholder
+function PH(title, Ico) {
+return <div style={{ textAlign: “center”, paddingTop: 60 }}><div style={{ width: 64, height: 64, borderRadius: 20, background: “rgba(255,215,0,0.08)”, display: “flex”, alignItems: “center”, justifyContent: “center”, margin: “0 auto 16px”, color: “#FFD700” }}><Ico /></div><div style={mg({ fontSize: 18 }, G)}>{title}</div><div style={{ fontSize: 13, color: “#666”, marginTop: 8 }}>În construcție.</div><button onClick={function () { setPage(“dashboard”); }} style={{ marginTop: 20, padding: “10px 24px”, borderRadius: 10, border: “1px solid rgba(255,215,0,0.3)”, background: “rgba(255,215,0,0.08)”, color: “#FFD700”, fontWeight: 600, fontSize: 13, cursor: “pointer”, fontFamily: “inherit” }}>← Înapoi</button></div>;
+}
+
+var pageContent;
+if (page === “dashboard”) pageContent = renderDash();
+else if (page === “venituri”) pageContent = renderVenituri();
+else if (page === “cheltuieli”) pageContent = renderCheltuieli();
+else if (page === “taxe”) pageContent = renderTaxe();
+else if (page === “datorii”) pageContent = renderDatorii();
+else if (page === “facturi”) pageContent = renderFacturi();
+else if (page === “abonamente”) pageContent = renderAbonamente();
+else if (page === “calendar”) pageContent = renderCalendar();
+else if (page === “buget”) pageContent = renderBuget();
+else if (page === “obiective”) pageContent = renderObiective();
+else if (page === “situatie”) pageContent = renderSituatie();
+else if (page === “export”) pageContent = renderExport();
+else if (page === “chatbot”) pageContent = renderChatbot();
+else if (page === “configurare”) pageContent = PH(“Configurare”, IcoBolt);
+else pageContent = renderDash();
+
+var curNav = null;
+for (var ni = 0; ni < NAV.length; ni++) { if (NAV[ni].id === page) { curNav = NAV[ni]; break; } }
+
+return (
+<div style={{ minHeight: “100vh”, background: “#0A0A0F”, color: “#E8E8EC”, fontFamily: “‘Outfit’,sans-serif” }}>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+```
+  <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 99, opacity: sidebar ? 1 : 0, pointerEvents: sidebar ? "auto" : "none" }} onClick={function () { setSidebar(false); }} />
+
+  <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 260, zIndex: 100, background: "#0D0D14", borderRight: "1px solid rgba(255,255,255,0.06)", transform: sidebar ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.3s", overflowY: "auto" }}>
+    <div style={{ padding: "20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between" }}><div style={mg({ fontSize: 16, fontWeight: 800 }, G)}>FinanțePro</div><button onClick={function () { setSidebar(false); }} style={{ background: "none", border: "none", color: "#666", cursor: "pointer" }}><IcoX /></button></div>
+    <div style={{ padding: "8px 0" }}>{NAV.map(function (n) { var Ic = ICO_MAP[n.ico]; return <div key={n.id} onClick={function () { setPage(n.id); setSidebar(false); }} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 20px", color: page === n.id ? "#FFD700" : "#888", fontWeight: page === n.id ? 600 : 400, fontSize: 13, cursor: "pointer", background: page === n.id ? "rgba(255,215,0,0.08)" : "transparent", borderLeft: page === n.id ? "3px solid #FFD700" : "3px solid transparent" }}>{Ic ? <Ic /> : null}<span>{n.l}</span></div>; })}</div>
+  </div>
+
+  <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(10,10,15,0.9)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+    {page !== "dashboard" ? <button onClick={function () { setPage("dashboard"); }} style={{ background: "none", border: "none", color: "#E8E8EC", cursor: "pointer" }}><IcoBack /></button> : <button onClick={function () { setSidebar(true); }} style={{ background: "none", border: "none", color: "#E8E8EC", cursor: "pointer" }}><IcoMenu /></button>}
+    <div style={{ flex: 1 }}><div style={mg({ fontSize: 15 }, G)}>{curNav ? curNav.l : "Panou"}</div><div style={{ fontSize: 10, color: "#555" }}>Aprilie 2026</div></div>
+    <button onClick={function () { setSearchOpen(!searchOpen); }} style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "#888", cursor: "pointer", padding: 8, borderRadius: 10 }}><IcoSearch /></button>
+  </div>
+
+  <div style={{ padding: 16, maxWidth: 900, margin: "0 auto", paddingBottom: 100 }}>{pageContent}</div>
+
+  {delConfirm ? <div style={{ position: "fixed", inset: 0, zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} onClick={function () { setDelConfirm(null); }} /><div style={{ position: "relative", width: "85%", maxWidth: 340, background: "#12121A", borderRadius: 20, padding: 24, textAlign: "center", zIndex: 1 }}><div style={{ fontSize: 32, marginBottom: 12 }}>⚠️</div><div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>Confirmi ștergerea?</div><div style={{ display: "flex", gap: 10 }}><button onClick={function () { setDelConfirm(null); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: "none", background: "rgba(255,255,255,0.06)", color: "#888", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Anulează</button><button onClick={function () { delItem(delConfirm); }} style={{ flex: 1, padding: 10, borderRadius: 10, border: "none", background: "rgba(255,23,68,0.15)", color: "#FF1744", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Șterge</button></div></div></div> : null}
+</div>
+```
+
+);
+}
